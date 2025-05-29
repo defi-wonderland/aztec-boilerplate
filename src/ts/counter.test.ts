@@ -1,4 +1,4 @@
-import { ExampleContract, ExampleContractArtifact } from '../artifacts/Example.js';
+import { CounterContract, CounterContractArtifact } from '../artifacts/Counter.js';
 import {
   AccountWallet,
   CompleteAddress,
@@ -10,20 +10,20 @@ import {
 import { getInitialTestAccountsWallets } from '@aztec/accounts/testing';
 import { setupSandbox } from './utils.js';
 
-export async function deployExample(deployer: AccountWallet, owner: AztecAddress): Promise<ExampleContract> {
+export async function deployCounter(deployer: AccountWallet, owner: AztecAddress): Promise<CounterContract> {
   const contract = await Contract.deploy(
     deployer,
-    ExampleContractArtifact,
+    CounterContractArtifact,
     [owner],
     'constructor', // not actually needed since it's the default constructor
   )
     .send()
     .deployed();
-  return contract as ExampleContract;
+  return contract as CounterContract;
 }
 
 
-describe('Example Contract', () => {
+describe('Counter Contract', () => {
   let pxe: PXE;
   let wallets: AccountWalletWithSecretKey[] = [];
   let accounts: CompleteAddress[] = [];
@@ -32,7 +32,7 @@ describe('Example Contract', () => {
   let bob: AccountWallet;
   let carl: AccountWallet;
 
-  let example: ExampleContract;
+  let counter: CounterContract;
 
   beforeAll(async () => {
     pxe = await setupSandbox();
@@ -46,22 +46,17 @@ describe('Example Contract', () => {
   });
   
   beforeEach(async () => {
-    example = (await deployExample(alice, alice.getAddress())) ;
+    counter = (await deployCounter(alice, alice.getAddress())) ;
   });
 
-  it('should work properly (?)', async () => {
-    
-    const owner = await example.methods.get_owner().simulate();
+  it('e2e', async () => {
+    const owner = await counter.methods.get_owner().simulate();
     expect(owner).toStrictEqual(alice.getAddress());
-
-    // default value is 0
-    expect(await example.methods.get_value().simulate()).toBe(0n);
-    const newValue = 100;
-    // set the new value
-    await example.methods.set_value(newValue).send().wait();
-    // the value is now updated
-    expect(await example.methods.get_value().simulate()).toBe(newValue);
+    // default counter's value is 0
+    expect(await counter.methods.get_counter().simulate()).toBe(0n);
+    // call to `increment`
+    await counter.methods.increment().send().wait();
+    // now the counter should be incremented.
+    expect(await counter.methods.get_counter().simulate()).toBe(1n);
   })
-
-
 });

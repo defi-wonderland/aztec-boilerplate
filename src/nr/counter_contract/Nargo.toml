@@ -1,5 +1,5 @@
 [package]
-name = "example_contract"
+name = "counter_contract"
 type = "contract"
 compiler_version = ">=1.0.0"
 authors = [""]

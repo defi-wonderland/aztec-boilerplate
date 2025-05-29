@@ -1,4 +1,4 @@
 [workspace]
 members = [
-    "src/nr/example_contract",
+    "src/nr/counter_contract",
 ]

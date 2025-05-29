@@ -21,6 +21,6 @@
       "skipLibCheck": true,
       "jsx": "react-jsx"
     },
-    "include": ["src", "src/**/*.json", "src/artifacts/*", "target/**/*"]
+    "include": ["src", "src/**/*.json", "src/artifacts/*", "target/**/*.json"]
   }
   
