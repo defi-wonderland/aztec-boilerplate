@@ -1,7 +1,7 @@
 {
     "name": "aztec-boilerplate",
     "version": "0.0.0",
-    "repository": "https://github.com/defi-wonderland/aztec-upgradeable-contracts.git",
+    "repository": "https://github.com/defi-wonderland/aztec-boilerplate.git",
     "author": "Wonderland",
     "license": "MIT",
     "type": "module",
