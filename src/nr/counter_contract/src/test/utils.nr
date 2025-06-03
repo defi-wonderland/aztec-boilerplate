@@ -1,10 +1,6 @@
 use crate::Counter;
 use aztec::{
-    prelude::AztecAddress,
-    protocol_types::{
-        contract_class_id::ContractClassId, contract_instance::ContractInstance,
-        storage::map::derive_storage_slot_in_map,
-    },
+    prelude::AztecAddress, protocol_types::contract_instance::ContractInstance,
     test::helpers::test_environment::TestEnvironment,
 };
 
