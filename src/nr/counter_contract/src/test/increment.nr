@@ -1,4 +1,4 @@
-use crate::{test::utils, Counter};
+use crate::{Counter, test::utils};
 
 #[test]
 unconstrained fn increment_success() {

@@ -35,9 +35,7 @@ pub contract Counter {
     /// @dev Increments the counter
     #[private]
     fn increment() {
-        Counter::at(context.this_address())
-            .increment_internal()
-            .enqueue(&mut context);
+        Counter::at(context.this_address()).increment_internal().enqueue(&mut context);
     }
 
     /// @dev Retrieves the counter value

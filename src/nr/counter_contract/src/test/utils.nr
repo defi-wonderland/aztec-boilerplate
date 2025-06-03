@@ -1,12 +1,11 @@
 use crate::Counter;
 use aztec::{
-    prelude::{AztecAddress},
-    test::helpers::{test_environment::TestEnvironment},
+    prelude::AztecAddress,
     protocol_types::{
-        storage::map::derive_storage_slot_in_map,
         contract_class_id::ContractClassId, contract_instance::ContractInstance,
+        storage::map::derive_storage_slot_in_map,
     },
-
+    test::helpers::test_environment::TestEnvironment,
 };
 
 pub unconstrained fn setup_contract(
@@ -33,10 +32,9 @@ pub unconstrained fn deploy_contract(
     env: &mut TestEnvironment,
     owner: AztecAddress,
 ) -> ContractInstance {
-    let initializer_call_interface = Counter::interface().constructor(
-        owner,
-    );
-    let contract_instance = env.deploy("./@counter_contract", "Counter")
+    let initializer_call_interface = Counter::interface().constructor(owner);
+    let contract_instance = env
+        .deploy("./@counter_contract", "Counter")
         .with_public_void_initializer(owner, initializer_call_interface);
     env.advance_block_by(1);
 
