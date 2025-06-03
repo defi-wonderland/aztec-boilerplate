@@ -1,4 +1,7 @@
-import { CounterContract, CounterContractArtifact } from '../artifacts/Counter.js';
+import {
+  CounterContract,
+  CounterContractArtifact,
+} from "../artifacts/Counter.js";
 import {
   AccountWallet,
   CompleteAddress,
@@ -6,24 +9,26 @@ import {
   AccountWalletWithSecretKey,
   Contract,
   AztecAddress,
-} from '@aztec/aztec.js';
-import { getInitialTestAccountsWallets } from '@aztec/accounts/testing';
-import { setupSandbox } from './utils.js';
+} from "@aztec/aztec.js";
+import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
+import { setupSandbox } from "./utils.js";
 
-export async function deployCounter(deployer: AccountWallet, owner: AztecAddress): Promise<CounterContract> {
+export async function deployCounter(
+  deployer: AccountWallet,
+  owner: AztecAddress,
+): Promise<CounterContract> {
   const contract = await Contract.deploy(
     deployer,
     CounterContractArtifact,
     [owner],
-    'constructor', // not actually needed since it's the default constructor
+    "constructor", // not actually needed since it's the default constructor
   )
     .send()
     .deployed();
   return contract as CounterContract;
 }
 
-
-describe('Counter Contract', () => {
+describe("Counter Contract", () => {
   let pxe: PXE;
   let wallets: AccountWalletWithSecretKey[] = [];
   let accounts: CompleteAddress[] = [];
@@ -44,12 +49,12 @@ describe('Counter Contract', () => {
     bob = wallets[1];
     carl = wallets[2];
   });
-  
+
   beforeEach(async () => {
-    counter = (await deployCounter(alice, alice.getAddress())) ;
+    counter = await deployCounter(alice, alice.getAddress());
   });
 
-  it('e2e', async () => {
+  it("e2e", async () => {
     const owner = await counter.methods.get_owner().simulate();
     expect(owner).toStrictEqual(alice.getAddress());
     // default counter's value is 0
@@ -58,5 +63,5 @@ describe('Counter Contract', () => {
     await counter.methods.increment().send().wait();
     // now the counter should be incremented.
     expect(await counter.methods.get_counter().simulate()).toBe(1n);
-  })
+  });
 });
