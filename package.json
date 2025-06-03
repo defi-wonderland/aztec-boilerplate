@@ -13,7 +13,8 @@
       "test:js": "NODE_NO_WARNINGS=1 node --experimental-vm-modules $(yarn bin jest) --no-cache --runInBand --config jest.integration.config.json",
       "test:nr": "aztec test",
       "lint:prettier": "prettier '**/*.{js,ts}' --write",
-      "ccc": "yarn clean && yarn compile && yarn codegen -f"
+      "ccc": "yarn clean && yarn compile && yarn codegen -f",
+      "prepare": "husky"
     },
     "lint-staged": {
       "*.ts": "prettier --write -u"

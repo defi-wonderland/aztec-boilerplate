@@ -1,3 +1,2 @@
-echo "Running husky"
 aztec-nargo fmt
 yarn lint-staged
