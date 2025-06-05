@@ -1,0 +1,143 @@
+name: Aztec Benchmark Diff
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  BENCH_DIR: ./src/ts/benchmarks
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ──────────────────────────────────────────────────────────────
+      # 0️⃣  SHARED TOOLING – Buildx + Aztec CLI skeleton
+      # ──────────────────────────────────────────────────────────────
+      - name: Checkout repo (full history)
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx (Aztec sandbox needs BuildKit)
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install Aztec CLI
+        run: |
+          curl -s https://install.aztec.network > tmp.sh
+          bash tmp.sh <<< yes "yes"
+    
+      - name: Update path
+        run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
+
+      # ──────────────────────────────────────────────────────────────
+      # 1️⃣  BENCHMARK BASE COMMIT
+      # ──────────────────────────────────────────────────────────────
+      - name: Checkout BASE branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+
+      - name: Detect Aztec version (BASE)
+        id: basever
+        run: |
+          VER=$(node -p "require('./package.json').config.aztecVersion")
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+          echo "Base Aztec version is $VER"
+
+      - name: Switch CLI to BASE version
+        run: |
+          VERSION=${{ steps.basever.outputs.ver }} aztec-up
+
+      - name: Start sandbox (BASE, background)
+        run: aztec start --sandbox &
+
+      - name: Start PXE node (BASE, background)
+        run: |
+          VERSION=${{ steps.basever.outputs.ver }} aztec \
+            start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
+            --pxe.proverEnabled false &
+
+      - name: Install deps (BASE)
+        run: yarn
+
+      - name: Compile contracts (BASE)
+        run: script -e -c "${AZTEC_NARGO:-aztec-nargo} compile"
+
+      - name: Codegen wrappers (BASE)
+        run: script -e -c "aztec codegen target --outdir src/artifacts --force"
+
+      - name: Benchmark (BASE)
+        run: |
+          npx aztec-benchmark --suffix _base --output-dir ${{ env.BENCH_DIR }}
+
+      # ──────────────────────────────────────────────────────────────
+      # 2️⃣  BENCHMARK PR HEAD  (github.event.pull_request.head.sha)
+      # ──────────────────────────────────────────────────────────────
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Detect Aztec version (PR)
+        id: prver
+        run: |
+          VER=$(node -p "require('./package.json').config.aztecVersion")
+          echo "PR Aztec version is $VER"
+          if [ "${{ steps.basever.outputs.ver }}" != "$VER" ]; then
+            echo "ver_diff=true" >> "$GITHUB_OUTPUT"
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+          else
+            echo "ver_diff=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Kill BASE services
+        if: steps.prver.outputs.ver_diff == 'true'
+        run: |
+          pkill -f "aztec.*--sandbox" || true                   
+          pkill -f "aztec.*--pxe.*8081" || true                   
+          sleep 5      
+
+      - name: Switch CLI to PR version
+        if: steps.prver.outputs.ver_diff == 'true'
+        run: |
+          VERSION=${{ steps.prver.outputs.ver }} aztec-up
+
+      - name: Start sandbox (PR, background)
+        if: steps.prver.outputs.ver_diff == 'true'
+        run: aztec start --sandbox &
+
+      - name: Start PXE node (PR, background)
+        if: steps.prver.outputs.ver_diff == 'true'
+        run: |
+          VERSION=${{ steps.prver.outputs.ver }} aztec \
+            start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
+            --pxe.proverEnabled false &
+
+      - name: Install deps (PR)
+        run: yarn
+
+      - name: Compile contracts (PR)
+        run: script -e -c "${AZTEC_NARGO:-aztec-nargo} compile"
+
+      - name: Codegen wrappers (PR)
+        run: script -e -c "aztec codegen target --outdir src/artifacts --force"
+
+      # ──────────────────────────────────────────────────────────────
+      # 3️⃣  DIFF &  COMMENT
+      # ──────────────────────────────────────────────────────────────
+      - name: Generate Markdown diff
+        uses: defi-wonderland/aztec-benchmark/action@main
+        with:
+          base_suffix: '_base'
+          current_suffix: '_pr'
+
+      - name: Comment diff
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body-file: benchmark-comparison.md
