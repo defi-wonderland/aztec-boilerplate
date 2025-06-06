@@ -3,6 +3,7 @@ import {
   createPXEClient,
   AccountWallet,
   Contract,
+  AztecAddress,
 } from "@aztec/aztec.js";
 import {
   CounterContract,
@@ -24,18 +25,20 @@ export const setupSandbox = async () => {
 /**
  * Deploys the Counter contract.
  * @param deployer - The wallet to deploy the contract with.
+ * @param owner - The address of the owner of the contract.
  * @returns A deployed contract instance.
  */
 export async function deployCounter(
   deployer: AccountWallet,
+  owner: AztecAddress,
 ): Promise<CounterContract> {
-  const receipt = await Contract.deploy(
+  const contract = await Contract.deploy(
     deployer,
     CounterContractArtifact,
-    [deployer.getAddress()],
-    "constructor",
+    [owner],
+    "constructor", // not actually needed since it's the default constructor
   )
     .send()
-    .wait();
-  return receipt.contract as CounterContract;
+    .deployed();
+  return contract as CounterContract;
 }

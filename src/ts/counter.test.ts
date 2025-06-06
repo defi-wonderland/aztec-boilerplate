@@ -13,21 +13,6 @@ import {
 import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
 import { setupSandbox } from "./utils.js";
 
-export async function deployCounter(
-  deployer: AccountWallet,
-  owner: AztecAddress,
-): Promise<CounterContract> {
-  const contract = await Contract.deploy(
-    deployer,
-    CounterContractArtifact,
-    [owner],
-    "constructor", // not actually needed since it's the default constructor
-  )
-    .send()
-    .deployed();
-  return contract as CounterContract;
-}
-
 describe("Counter Contract", () => {
   let pxe: PXE;
   let wallets: AccountWalletWithSecretKey[] = [];

@@ -30,7 +30,10 @@ export default class CounterContractBenchmark extends Benchmark {
     const pxe = createPXEClient(`${BASE_PXE_URL}:8080`);
     const accounts = await getInitialTestAccountsWallets(pxe);
     const deployer = accounts[0]!;
-    const deployedCounterContract = await deployCounter(deployer);
+    const deployedCounterContract = await deployCounter(
+      deployer,
+      deployer.getAddress(),
+    );
     const counterContract = await CounterContract.at(
       deployedCounterContract.address,
       deployer,
