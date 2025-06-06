@@ -32,7 +32,7 @@ export async function deployCounter(
   const receipt = await Contract.deploy(
     deployer,
     CounterContractArtifact,
-    [],
+    [deployer.getAddress()],
     "constructor",
   )
     .send()
