@@ -8,7 +8,7 @@ permissions:
   pull-requests: write
 
 env:
-  BENCH_DIR: ./src/ts/benchmarks
+  BENCH_DIR: ./benchmarks
 
 jobs:
   benchmark:
