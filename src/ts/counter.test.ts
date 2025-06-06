@@ -7,11 +7,9 @@ import {
   CompleteAddress,
   PXE,
   AccountWalletWithSecretKey,
-  Contract,
-  AztecAddress,
 } from "@aztec/aztec.js";
 import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
-import { setupSandbox } from "./utils.js";
+import { deployCounter, setupSandbox } from "./utils.js";
 
 describe("Counter Contract", () => {
   let pxe: PXE;
