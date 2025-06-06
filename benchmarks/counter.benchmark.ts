@@ -9,7 +9,7 @@ import {
 } from "@defi-wonderland/aztec-benchmark";
 
 import { CounterContract } from "../src/artifacts/Counter.js";
-import { deployCounter } from "../utils.js";
+import { deployCounter } from "../src/ts/utils.js";
 
 // Extend the BenchmarkContext from the new package
 interface CounterBenchmarkContext extends BenchmarkContext {
