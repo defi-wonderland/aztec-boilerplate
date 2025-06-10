@@ -75,14 +75,26 @@ jobs:
         run: |
           npx aztec-benchmark --suffix _base --output-dir ${{ env.BENCH_DIR }}
 
+      # This is required to avoid the benchmark results being removed by the Checkout PR step
+      - name: Store base benchmark results
+        run: |
+          mkdir -p ../benchmarks_base && mv ${{ env.BENCH_DIR }}/* ../benchmarks_base/
+
       # ──────────────────────────────────────────────────────────────
       # 2️⃣  BENCHMARK PR HEAD  (github.event.pull_request.head.sha)
       # ──────────────────────────────────────────────────────────────
+
+      # clean does not work correctly and is removing the benchmark results anyways
+      # https://github.com/actions/checkout/issues/1201
       - name: Checkout PR branch
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           clean: false
+
+      # Restore the base benchmark results to avoid the benchmark results being removed by the Checkout PR step
+      - name: Restore base benchmark results
+        run: mv ../benchmarks_base/* ${{ env.BENCH_DIR }}/
 
       - name: Detect Aztec version (PR)
         id: prver
@@ -91,10 +103,10 @@ jobs:
           echo "PR Aztec version is $VER"
           if [ "${{ steps.basever.outputs.ver }}" != "$VER" ]; then
             echo "ver_diff=true" >> "$GITHUB_OUTPUT"
-          echo "ver=$VER" >> "$GITHUB_OUTPUT"
           else
             echo "ver_diff=false" >> "$GITHUB_OUTPUT"
           fi
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
 
       - name: Kill BASE services
         if: steps.prver.outputs.ver_diff == 'true'
