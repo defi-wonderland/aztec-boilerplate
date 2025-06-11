@@ -67,16 +67,3 @@ jobs:
 
         - name: Run js tests
           run: script -e -c "BASE_PXE_URL=http://localhost NODE_NO_WARNINGS=1 node --experimental-vm-modules $(yarn bin jest) --no-cache --runInBand --config jest.integration.config.json"
-
-        - name: Benchmark
-          uses: defi-wonderland/aztec-benchmark/action@main
-          if: steps.changes.outputs.src == 'true'
-          with:
-            threshold: '2.0' # Using the default values for the rest of action parameters
-
-        - name: Comment diff
-          uses: peter-evans/create-or-update-comment@v4
-          if: steps.changes.outputs.src == 'true'
-          with:
-            issue-number: ${{ github.event.pull_request.number }}
-            body-file: benchmark-comparison.md
