@@ -1,5 +1,5 @@
 import { type AccountWallet, type PXE, createPXEClient } from "@aztec/aztec.js";
-import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
+import { getDeployedTestAccountsWallets } from "@aztec/accounts/testing";
 
 // Import types from benchmark package
 import {
@@ -28,12 +28,14 @@ export default class CounterContractBenchmark extends Benchmark {
   async setup(): Promise<CounterBenchmarkContext> {
     const { BASE_PXE_URL = "http://localhost" } = process.env;
     const pxe = createPXEClient(`${BASE_PXE_URL}:8080`);
-    const accounts = await getInitialTestAccountsWallets(pxe);
-    const deployer = accounts[0]!;
+
+    const accounts = await getDeployedTestAccountsWallets(pxe);
+    const deployer = accounts[0];
     const deployedCounterContract = await deployCounter(
       deployer,
       deployer.getAddress(),
     );
+    // TODO: this isn't needed
     const counterContract = await CounterContract.at(
       deployedCounterContract.address,
       deployer,
