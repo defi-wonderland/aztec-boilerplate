@@ -29,7 +29,7 @@
 
 ## Setup
 
-1. Install Aztec by following the instructions from [their documentation](https://docs.aztec.network/getting_started/quickstart).
+1. Install Aztec by following the instructions from [their documentation](https://docs.aztec.network/developers/getting_started).
 2. Install the dependencies by running: `yarn install`
 3. Ensure you have Docker installed and running (required for Aztec sandbox)
 
@@ -108,7 +108,7 @@ Benchmark results are saved to `benchmarks/` directory.
 
 ### Adding new benchmarks
 
-Create a new benchmark file extending the base `Benchmark` class:
+Create a new benchmark file extending the base `Benchmark` class or add a new method line to your existing setup:
 
 ```typescript
 import { Benchmark } from '@defi-wonderland/aztec-benchmark';
@@ -118,13 +118,16 @@ export class MyContractBenchmark extends Benchmark {
     // Initialize your contract and dependencies
   }
 
-  getMethods() {
-    return [
-      {
-        name: 'myMethod',
-        fn: () => this.contract.methods.myMethod().send().wait(),
-      },
-    ];
+  getMethods(context: CounterBenchmarkContext): BenchmarkedInteraction[] {
+    const { contract, deployer } = context;
+    const alice = deployer;
+
+    const methods = [
+      // Add the function calls that you want to benchmark here
+      contract.withWallet(alice).methods.method(1),
+    ] as BenchmarkedInteraction[];
+
+    return methods.filter(Boolean);
   }
 }
 ```
@@ -194,8 +197,8 @@ The automated benchmarking will run on your PR, providing performance insights c
 
 - [Aztec Documentation](https://docs.aztec.network/)
 - [Noir Language Documentation](https://noir-lang.org/)
-- [Aztec Sandbox Quickstart](https://docs.aztec.network/getting_started/quickstart)
-- [Aztec Contracts Guide](https://docs.aztec.network/guides/smart_contracts/writing_contracts)
+- [Aztec Sandbox Quickstart](https://docs.aztec.network/developers/getting_started)
+- [Aztec Contracts Guide](https://docs.aztec.network/aztec/smart_contracts_overview)
 
 ## License
 
