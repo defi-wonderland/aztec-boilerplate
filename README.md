@@ -119,8 +119,8 @@ export class MyContractBenchmark extends Benchmark {
   }
 
   getMethods(context: CounterBenchmarkContext): BenchmarkedInteraction[] {
-    const { contract, deployer } = context;
-    const alice = deployer;
+    const { contract, accounts } = context;
+    const [alice] = accounts;
 
     const methods = [
       // Add the function calls that you want to benchmark here

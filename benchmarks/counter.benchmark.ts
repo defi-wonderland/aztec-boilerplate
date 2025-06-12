@@ -45,8 +45,8 @@ export default class CounterContractBenchmark extends Benchmark {
    * Returns the list of CounterContract methods to be benchmarked.
    */
   getMethods(context: CounterBenchmarkContext): BenchmarkedInteraction[] {
-    const { counterContract, deployer } = context;
-    const alice = deployer;
+    const { counterContract, accounts } = context;
+    const [alice] = accounts;
 
     const methods = [
       counterContract.withWallet(alice).methods.increment(),
