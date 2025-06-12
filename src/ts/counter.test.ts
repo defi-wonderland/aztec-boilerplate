@@ -1,20 +1,14 @@
-import {
-  CounterContract,
-  CounterContractArtifact,
-} from "../artifacts/Counter.js";
-import {
-  AccountWallet,
-  CompleteAddress,
-  PXE,
-  AccountWalletWithSecretKey,
-} from "@aztec/aztec.js";
-import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
+import { CounterContract } from "../artifacts/Counter.js";
+import { AccountWallet, PXE, AccountManager } from "@aztec/aztec.js";
+import { getInitialTestAccounts } from "@aztec/accounts/testing";
 import { deployCounter, setupSandbox } from "./utils.js";
+import { getSchnorrAccount } from "@aztec/accounts/schnorr";
+import { deriveSigningKey } from "@aztec/stdlib/keys";
 
 describe("Counter Contract", () => {
   let pxe: PXE;
-  let wallets: AccountWalletWithSecretKey[] = [];
-  let accounts: CompleteAddress[] = [];
+  let wallets: AccountWallet[] = [];
+  let accounts: AccountManager[] = [];
 
   let alice: AccountWallet;
   let bob: AccountWallet;
@@ -25,12 +19,20 @@ describe("Counter Contract", () => {
   beforeAll(async () => {
     pxe = await setupSandbox();
 
-    wallets = await getInitialTestAccountsWallets(pxe);
-    accounts = wallets.map((w) => w.getCompleteAddress());
+    accounts = await Promise.all(
+      (await getInitialTestAccounts()).map(async (acc) => {
+        const wallet = await getSchnorrAccount(
+          pxe,
+          acc.secret,
+          deriveSigningKey(acc.secret),
+          acc.salt,
+        );
+        return wallet;
+      }),
+    );
+    wallets = await Promise.all(accounts.map((acc) => acc.getWallet()));
 
-    alice = wallets[0];
-    bob = wallets[1];
-    carl = wallets[2];
+    [alice, bob, carl] = wallets;
   });
 
   beforeEach(async () => {
