@@ -1,20 +1,11 @@
-import {
-  CounterContract,
-  CounterContractArtifact,
-} from "../artifacts/Counter.js";
-import {
-  AccountWallet,
-  CompleteAddress,
-  PXE,
-  AccountWalletWithSecretKey,
-} from "@aztec/aztec.js";
-import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
+import { CounterContract } from "../artifacts/Counter.js";
+import { AccountWallet, PXE } from "@aztec/aztec.js";
+import { getDeployedTestAccountsWallets } from "@aztec/accounts/testing";
 import { deployCounter, setupSandbox } from "./utils.js";
 
 describe("Counter Contract", () => {
   let pxe: PXE;
-  let wallets: AccountWalletWithSecretKey[] = [];
-  let accounts: CompleteAddress[] = [];
+  let wallets: AccountWallet[] = [];
 
   let alice: AccountWallet;
   let bob: AccountWallet;
@@ -24,20 +15,15 @@ describe("Counter Contract", () => {
 
   beforeAll(async () => {
     pxe = await setupSandbox();
-
-    wallets = await getInitialTestAccountsWallets(pxe);
-    accounts = wallets.map((w) => w.getCompleteAddress());
-
-    alice = wallets[0];
-    bob = wallets[1];
-    carl = wallets[2];
+    wallets = await getDeployedTestAccountsWallets(pxe);
+    [alice, bob, carl] = wallets;
   });
 
   beforeEach(async () => {
     counter = await deployCounter(alice, alice.getAddress());
   });
 
-  it("e2e", async () => {
+  it("can increment the counter", async () => {
     const owner = await counter.methods.get_owner().simulate();
     expect(owner).toStrictEqual(alice.getAddress());
     // default counter's value is 0
