@@ -31,6 +31,11 @@
 
 1. Install Aztec by following the instructions from [their documentation](https://docs.aztec.network/developers/getting_started).
 2. Install the dependencies by running: `yarn install`
+
+> **Note:** Ensure you use the Aztec version specified in package.json. To install the correct version, run:
+> 
+> `VERSION=${version} aztec-up`
+
 3. Ensure you have Docker installed and running (required for Aztec sandbox)
 
 ## Build
