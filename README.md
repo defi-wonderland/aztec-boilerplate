@@ -33,6 +33,9 @@
 2. Install the dependencies by running: `yarn install`
 3. Ensure you have Docker installed and running (required for Aztec sandbox)
 
+
+Note: When running commands such as `aztec-up`, ensure that you set the `VERSION` environment variable to the Aztec version specified in package.json. For example, if the package.json specifies version `0.87.5`, run: `VERSION=0.87.5 aztec-up`.
+
 ## Build
 
 The complete build pipeline includes cleaning, compiling Noir contracts, and generating TypeScript artifacts:
