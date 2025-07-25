@@ -18,7 +18,7 @@
   <dd>Complete TypeScript setup with generated contract bindings and utilities for interacting with Aztec sandbox.</dd>
 
   <dt>Comprehensive testing</dt>
-  <dd>Noir unit tests for contract logic and TypeScript integration tests using Jest with ESM support. Tests automatically start and manage the Aztec sandbox - no manual setup required.</dd>
+  <dd>Noir unit tests for contract logic and TypeScript integration tests using Vitest. Tests automatically start and manage the Aztec sandbox - no manual setup required.</dd>
 
   <dt>Automated benchmarking</dt>
   <dd>GitHub Actions workflow that automatically benchmarks your contracts on every PR, comparing Gates, DA Gas and L2 Gas against the base branch.</dd>
