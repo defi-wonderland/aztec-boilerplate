@@ -66,4 +66,4 @@ jobs:
             script -e -c "aztec test"
 
         - name: Run js tests
-          run: script -e -c "BASE_PXE_URL=http://localhost NODE_NO_WARNINGS=1 node --experimental-vm-modules $(yarn bin jest) --no-cache --runInBand --config jest.integration.config.json"
+          run: script -e -c "BASE_PXE_URL=http://localhost yarn test:js"
