@@ -17,20 +17,33 @@ jobs:
 
       steps:
         - name: Checkout repository
-          uses: actions/checkout@v3
+          uses: actions/checkout@v4
           with:
             fetch-depth: 0 # Fetch all history for comparison
 
-        - name: Set up Docker
-          uses: docker/setup-buildx-action@v2
-
-        - name: Check for changes in src/
-          uses: dorny/paths-filter@v3
-          id: changes
+        - name: Setup Node.js with yarn caching
+          uses: actions/setup-node@v4
           with:
-            filters: |
-              src:
-                - 'src/**'
+            node-version: '20'
+            cache: 'yarn'
+            cache-dependency-path: 'yarn.lock'
+
+        - name: Set up Docker with caching
+          uses: docker/setup-buildx-action@v3
+          with:
+            driver-opts: |
+              image=moby/buildkit:latest
+              
+        - name: Cache Noir compilation artifacts
+          id: cache-noir
+          uses: actions/cache@v4
+          with:
+            path: |
+              target/
+              src/artifacts/
+            key: ${{ runner.os }}-noir-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
+            restore-keys: |
+              ${{ runner.os }}-noir-
 
         - name: Install Aztec CLI
           run: |
@@ -51,10 +64,12 @@ jobs:
         - name: Install project dependencies
           run: yarn
 
-        - name: Compile
+        - name: Compile contracts
+          if: steps.cache-noir.outputs.cache-hit != 'true'
           run: script -e -c "${AZTEC_NARGO:-aztec-nargo} compile"
 
-        - name: Codegen
+        - name: Generate artifacts
+          if: steps.cache-noir.outputs.cache-hit != 'true'
           run: script -e -c "aztec codegen target --outdir src/artifacts"
 
         - name: Start PXE
