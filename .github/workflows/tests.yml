@@ -7,63 +7,74 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-    setup-and-run:
-      name: Setup and run tests
-      runs-on: ubuntu-latest
-      timeout-minutes: 60
+  setup-and-run:
+    name: Setup and run tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
 
-      env:
-        AZTEC_VERSION: 0.87.2
+    env:
+      AZTEC_VERSION: 0.87.2
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v3
-          with:
-            fetch-depth: 0 # Fetch all history for comparison
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-        - name: Set up Docker
-          uses: docker/setup-buildx-action@v2
+      - name: Install and cache yarn
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
 
-        - name: Check for changes in src/
-          uses: dorny/paths-filter@v3
-          id: changes
-          with:
-            filters: |
-              src:
-                - 'src/**'
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
 
-        - name: Install Aztec CLI
-          run: |
-            curl -s https://install.aztec.network > tmp.sh
-            bash tmp.sh <<< yes "yes"
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-        - name: Update path
-          run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3    
 
-        - name: Set Aztec version
-          run: |
-            VERSION=$AZTEC_VERSION aztec-up
+      - name: Install Aztec CLI
+        run: |
+          curl -s https://install.aztec.network > tmp.sh
+          VERSION=$AZTEC_VERSION bash tmp.sh <<< yes "yes"
 
-        - name: Start sandbox
-          run: |
-            aztec start --sandbox &
+      - name: Update path
+        run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
 
-        - name: Install project dependencies
-          run: yarn
+      - name: Start sandbox
+        run: aztec start --sandbox &
 
-        - name: Compile
-          run: script -e -c "${AZTEC_NARGO:-aztec-nargo} compile"
+      - name: Cache Noir compilation artifacts
+        id: cache-noir
+        uses: actions/cache@v4
+        with:
+          path: |
+            target/
+            src/artifacts/
+          key: ${{ runner.os }}-noir-${{ env.AZTEC_VERSION }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
 
-        - name: Codegen
-          run: script -e -c "aztec codegen target --outdir src/artifacts"
+      - name: Compile contracts
+        if: steps.cache-noir.outputs.cache-hit != 'true'
+        run: script -e -c "${AZTEC_NARGO:-aztec-nargo} compile"
 
-        - name: Start PXE
-          run: |
-            VERSION=$AZTEC_VERSION aztec start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ --pxe.proverEnabled false &
+      - name: Generate artifacts
+        if: steps.cache-noir.outputs.cache-hit != 'true'
+        run: script -e -c "aztec codegen target --outdir src/artifacts"
 
-        - name: Run nr tests
-          run: |
-            script -e -c "aztec test"
+      - name: Start PXE
+        run: |
+          aztec start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ --pxe.proverEnabled false &
 
-        - name: Run js tests
-          run: script -e -c "BASE_PXE_URL=http://localhost NODE_NO_WARNINGS=1 node --experimental-vm-modules $(yarn bin jest) --no-cache --runInBand --config jest.integration.config.json"
+      - name: Run nr tests
+        run: script -e -c "aztec test"
+
+      - name: Run js tests
+        run: script -e -c "BASE_PXE_URL=http://localhost NODE_NO_WARNINGS=1 node --experimental-vm-modules $(yarn bin jest) --no-cache --runInBand --config jest.integration.config.json"

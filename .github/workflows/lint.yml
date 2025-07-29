@@ -1,0 +1,64 @@
+name: Lint
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+jobs:
+  commitlint:
+    name: Validate Commit Messages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Validate commit messages
+        if: github.event_name == 'push'
+        run: yarn commitlint --from=${{ github.event.before }} --to=${{ github.sha }} --verbose
+
+      - name: Validate PR title
+        if: github.event_name == 'pull_request'
+        run: echo "${{ github.event.pull_request.title }}" | yarn commitlint --verbose
+
+  format-check:
+    name: Check Files Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Aztec CLI
+        run: |
+          curl -s https://install.aztec.network > tmp.sh
+          bash tmp.sh <<< yes "yes"
+
+      - name: Update path
+        run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Check Noir formatting
+        run: aztec-nargo fmt --check
+
+      - name: Check Javascript & Typescript formatting
+        run: yarn prettier '**/*.{js,ts}' --check 
