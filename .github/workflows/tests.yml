@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 60
 
     env:
-      AZTEC_VERSION: 0.87.2
+      AZTEC_VERSION: 1.0.0-nightly.20250728
 
     steps:
       - name: Checkout repository
