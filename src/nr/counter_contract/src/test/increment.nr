@@ -18,7 +18,8 @@ unconstrained fn does_it_fail_to_call_the_initializer() {
     let user = env.create_light_account();
 
     let initializer_call_interface = Counter::interface().constructor(owner);
-    // let contract_address = env.deploy("Counter").with_public_initializer(owner, initializer_call_interface);
+    let counter_deployer = env.deploy("Counter");
+    // let contract_address = counter_deployer.with_public_initializer(owner, initializer_call_interface);
 
     // env.call_private(owner, Counter::at(contract_address).increment());
 
