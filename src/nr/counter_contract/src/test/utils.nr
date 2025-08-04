@@ -30,7 +30,6 @@ pub unconstrained fn deploy_contract(
     let initializer_call_interface = Counter::interface().constructor(owner);
     let contract_address =
         env.deploy("Counter").with_public_initializer(owner, initializer_call_interface);
-    // env.advance_block_by(1);
 
     contract_address
 }
