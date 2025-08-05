@@ -40,7 +40,7 @@ jobs:
         run: |
           AZTEC_VERSION=$(node -p "require('./package.json').config.aztecVersion")
           echo "version=$AZTEC_VERSION" >> "$GITHUB_OUTPUT"
-          echo "Aztec version is ${{ steps.aztec-version.outputs.version }}" 
+          echo "Aztec version is $AZTEC_VERSION" 
 
       - name: Install Aztec CLI
         run: |
