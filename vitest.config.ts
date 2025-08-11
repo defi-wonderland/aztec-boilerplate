@@ -6,5 +6,6 @@ export default defineConfig({
     hookTimeout: 200000,
     testTimeout: 200000,
     globalSetup: "./vitest.setup.ts",
+    fileParallelism: false,
   },
 });
