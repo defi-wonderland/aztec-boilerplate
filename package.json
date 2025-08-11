@@ -6,14 +6,14 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "clean": "rm -rf ./src/artifacts ./target",
+    "clean": "rm -rf ./src/artifacts ./target codegenCache.json",
     "codegen": "aztec codegen target --outdir src/artifacts",
     "compile": "aztec-nargo compile",
     "test": "yarn test:nr && yarn test:js",
     "test:js": "NODE_OPTIONS='--experimental-vm-modules --no-warnings' jest --no-cache --runInBand --config jest.integration.config.json",
     "test:nr": "aztec test",
     "lint:prettier": "prettier '**/*.{js,ts}' --write",
-    "ccc": "yarn clean && yarn compile && yarn codegen -f",
+    "build": "yarn compile && yarn codegen -f",
     "prepare": "husky"
   },
   "lint-staged": {
