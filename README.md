@@ -38,7 +38,7 @@
 The complete build pipeline includes cleaning, compiling Noir contracts, and generating TypeScript artifacts:
 
 ```bash
-yarn ccc
+yarn build
 ```
 
 This runs:
@@ -181,7 +181,7 @@ The `increment()` function is private but enqueues a public `increment_internal(
 ## Development workflow
 
 1. **Modify Noir contracts** in `src/nr/`
-2. **Run `yarn ccc`** to rebuild and regenerate TypeScript artifacts
+2. **Run `yarn build`** to rebuild and regenerate TypeScript artifacts
 3. **Write tests** in `src/ts/` using generated artifacts
 4. **Run tests** with `yarn test` (sandbox starts automatically)
 5. **Format code** with `yarn lint:prettier`
