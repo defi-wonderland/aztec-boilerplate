@@ -9,15 +9,23 @@ const execAsync = promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+interface PackageJson {
+  config?: {
+    aztecVersion?: string;
+  };
+}
+
 /**
  * Check if the installed Aztec CLI version matches the expected version in package.json
  */
-async function checkAztecVersion() {
+async function checkAztecVersion(): Promise<void> {
   console.log("🔍 Checking Aztec CLI version");
 
   // Read expected version from package.json
   const packageJsonPath = join(__dirname, "..", "package.json");
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+  const packageJson: PackageJson = JSON.parse(
+    readFileSync(packageJsonPath, "utf8"),
+  );
   const expectedVersion = packageJson.config?.aztecVersion;
 
   if (!expectedVersion) {
@@ -26,7 +34,7 @@ async function checkAztecVersion() {
 
   console.log(`📋 Expected Aztec version: ${expectedVersion}`);
 
-  let installedVersion;
+  let installedVersion: string;
 
   try {
     // Check if aztec CLI is installed and get version
@@ -34,7 +42,7 @@ async function checkAztecVersion() {
     installedVersion = stdout.trim();
 
     console.log("✅ Aztec CLI version check passed");
-  } catch (error) {
+  } catch (error: any) {
     if (error.code === "ENOENT") {
       throw new Error(
         `❌ Aztec CLI not found!\n` +
