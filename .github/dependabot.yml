@@ -12,6 +12,10 @@ updates:
       prefix: "chore"
       prefix-development: "chore"
       include: "scope"
+      body: "disable"
+    # Ignore specific packages
+    ignore:
+      - dependency-name: "@types/node"
     # Group related dependencies together
     groups:
       aztec-dependencies:
@@ -37,3 +41,4 @@ updates:
     commit-message:
       prefix: "ci"
       include: "scope"
+      body: "disable"
