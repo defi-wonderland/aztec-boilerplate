@@ -24,7 +24,7 @@
     "@aztec/accounts": "2.0.3",
     "@aztec/aztec.js": "2.0.3",
     "@aztec/noir-contracts.js": "2.0.3",
-    "@defi-wonderland/aztec-benchmark": "1.0.0",
+    "@defi-wonderland/aztec-benchmark": "2.0.0",
     "@types/node": "22.5.1"
   },
   "devDependencies": {
