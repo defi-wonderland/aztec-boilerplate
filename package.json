@@ -20,15 +20,15 @@
     "*.ts": "prettier --write -u"
   },
   "dependencies": {
-    "@aztec/accounts": "1.0.0-nightly.20250805",
-    "@aztec/aztec.js": "1.0.0-nightly.20250805",
-    "@aztec/noir-contracts.js": "1.0.0-nightly.20250805",
+    "@aztec/accounts": "2.0.3",
+    "@aztec/aztec.js": "2.0.3",
+    "@aztec/noir-contracts.js": "2.0.3",
     "@defi-wonderland/aztec-benchmark": "1.0.0",
     "@types/node": "22.5.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "^19.8.1",
-    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/cli": "19.8.1",
+    "@commitlint/config-conventional": "19.8.1",
     "@types/jest": "29.5.11",
     "@types/mocha": "10.0.6",
     "@types/node": "22.5.1",
@@ -44,7 +44,7 @@
     "testTimeout": 200000
   },
   "config": {
-    "aztecVersion": "1.0.0-nightly.20250805"
+    "aztecVersion": "2.0.3"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
