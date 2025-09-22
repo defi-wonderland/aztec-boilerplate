@@ -18,7 +18,7 @@
   <dd>Complete TypeScript setup with generated contract bindings and utilities for interacting with Aztec sandbox.</dd>
 
   <dt>Comprehensive testing</dt>
-  <dd>Noir unit tests for contract logic and TypeScript integration tests using Jest with ESM support.</dd>
+  <dd>Noir unit tests for contract logic and TypeScript integration tests using Vitest. Tests automatically start and manage the Aztec sandbox - no manual setup required.</dd>
 
   <dt>Automated benchmarking</dt>
   <dd>GitHub Actions workflow that automatically benchmarks your contracts on every PR, comparing Gates, DA Gas and L2 Gas against the base branch.</dd>
@@ -38,7 +38,7 @@
 The complete build pipeline includes cleaning, compiling Noir contracts, and generating TypeScript artifacts:
 
 ```bash
-yarn ccc
+yarn build
 ```
 
 This runs:
@@ -49,10 +49,21 @@ This runs:
 ## Running tests
 
 ### Prerequisites
-Before running tests, ensure the Aztec sandbox is running:
+The tests **automatically start and manage the Aztec sandbox** for you. 
+
+**Option 1: Automatic**
+Just run the tests and the sandbox will be handled automatically:
 
 ```bash
-aztec start --sandbox
+yarn test  # Sandbox starts automatically and stops when tests complete
+```
+
+**Option 2: Manual Control** 
+If you prefer to manage the sandbox yourself (e.g., for debugging or multiple test runs):
+
+```bash
+aztec start --sandbox  # Start manually in separate terminal
+yarn test              # Run tests against existing sandbox
 ```
 
 The sandbox runs on `http://localhost:8080` by default.
@@ -96,12 +107,15 @@ Every pull request automatically:
 
 ### Running benchmarks locally
 
-```bash
-# Ensure sandbox is running
-aztec start --sandbox
+Benchmarks also benefit from automatic sandbox management:
 
-# Run benchmarks
-yarn benchmark
+```bash
+# Option 1: Automatic sandbox management (recommended)
+yarn benchmark  # Sandbox starts automatically
+
+# Option 2: Manual sandbox control
+aztec start --sandbox  # Start manually in separate terminal
+yarn benchmark          # Run against existing sandbox
 ```
 
 Benchmark results are saved to `benchmarks/` directory.
@@ -167,9 +181,9 @@ The `increment()` function is private but enqueues a public `increment_internal(
 ## Development workflow
 
 1. **Modify Noir contracts** in `src/nr/`
-2. **Run `yarn ccc`** to rebuild and regenerate TypeScript artifacts
+2. **Run `yarn build`** to rebuild and regenerate TypeScript artifacts
 3. **Write tests** in `src/ts/` using generated artifacts
-4. **Run tests** with `yarn test`
+4. **Run tests** with `yarn test` (sandbox starts automatically)
 5. **Format code** with `yarn lint:prettier`
 6. **Create PR** and review automated benchmark results
 

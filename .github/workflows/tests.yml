@@ -12,19 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
 
-    env:
-      AZTEC_VERSION: 1.0.0-nightly.20250728
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Install and cache yarn
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'yarn'
 
       - name: Cache node_modules
@@ -38,19 +35,20 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3    
+      - name: Detect Aztec version
+        id: aztec-version
+        run: |
+          AZTEC_VERSION=$(node -p "require('./package.json').config.aztecVersion")
+          echo "version=$AZTEC_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Aztec version is $AZTEC_VERSION" 
 
       - name: Install Aztec CLI
         run: |
           curl -s https://install.aztec.network > tmp.sh
-          VERSION=$AZTEC_VERSION bash tmp.sh <<< yes "yes"
+          VERSION=${{ steps.aztec-version.outputs.version }} bash tmp.sh <<< yes "yes"
 
       - name: Update path
         run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
-
-      - name: Start sandbox
-        run: aztec start --sandbox &
 
       - name: Cache Noir compilation artifacts
         id: cache-noir
@@ -69,12 +67,8 @@ jobs:
         if: steps.cache-noir.outputs.cache-hit != 'true'
         run: script -e -c "aztec codegen target --outdir src/artifacts"
 
-      - name: Start PXE
-        run: |
-          aztec start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ --pxe.proverEnabled false &
-
       - name: Run nr tests
-        run: script -e -c "LOG_LEVEL=debug aztec test"
+        run: yarn test:nr
 
       - name: Run js tests
-        run: script -e -c "BASE_PXE_URL=http://localhost NODE_NO_WARNINGS=1 node --experimental-vm-modules $(yarn bin jest) --no-cache --runInBand --config jest.integration.config.json"
+        run: yarn test:js

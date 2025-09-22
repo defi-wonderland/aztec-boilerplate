@@ -10,6 +10,7 @@ import {
 } from "@aztec/aztec.js";
 import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
 import { deployCounter, setupSandbox } from "./utils.js";
+import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 
 describe("Counter Contract", () => {
   let pxe: PXE;
