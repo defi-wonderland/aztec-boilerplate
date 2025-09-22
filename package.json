@@ -7,13 +7,14 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf ./src/artifacts ./target",
-    "codegen": "aztec codegen target --outdir src/artifacts",
+    "codegen": "aztec codegen target --outdir src/artifacts -f",
     "compile": "aztec-nargo compile",
     "test": "yarn test:nr && yarn test:js",
     "test:js": "NODE_NO_WARNINGS=1 node --experimental-vm-modules $(yarn bin jest) --no-cache --runInBand --config jest.integration.config.json",
     "test:nr": "aztec test",
     "lint:prettier": "prettier '**/*.{js,ts}' --write",
     "ccc": "yarn clean && yarn compile && yarn codegen -f",
+    "cccp": "yarn clean && yarn compile && yarn codegen && aztec-postprocess-contract",
     "prepare": "husky"
   },
   "lint-staged": {
