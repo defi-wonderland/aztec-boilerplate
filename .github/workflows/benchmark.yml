@@ -133,7 +133,7 @@ jobs:
 
       - name: Compile contracts (BASE)
         if: steps.cache-noir-base.outputs.cache-hit != 'true'
-        run: script -e -c "${AZTEC_NARGO:-aztec-nargo} compile"
+        run: script -e -c "yarn build"
 
       - name: Codegen wrappers (BASE)
         if: steps.cache-noir-base.outputs.cache-hit != 'true'
