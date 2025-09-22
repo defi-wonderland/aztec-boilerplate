@@ -221,7 +221,7 @@ jobs:
 
       - name: Compile contracts (PR)
         if: steps.cache-noir-pr.outputs.cache-hit != 'true'
-        run: script -e -c "${AZTEC_NARGO:-aztec-nargo} compile"
+        run: script -e -c "yarn build"
 
       - name: Codegen wrappers (PR)
         if: steps.cache-noir-pr.outputs.cache-hit != 'true'
