@@ -6,7 +6,7 @@ import {
   Benchmark,
   type BenchmarkContext,
 } from "@defi-wonderland/aztec-benchmark";
-import { NamedBenchmarkedInteraction } from "@defi-wonderland/aztec-benchmark/dist/types.js";
+import type { NamedBenchmarkedInteraction } from "@defi-wonderland/aztec-benchmark/dist/types";
 
 import { CounterContract } from "../src/artifacts/Counter.js";
 import { deployCounter } from "../src/ts/utils.js";
