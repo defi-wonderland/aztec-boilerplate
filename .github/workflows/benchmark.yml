@@ -107,8 +107,8 @@ jobs:
 
       - name: Start PXE node (BASE, background)
         run: |
-          VERSION=${{ steps.basever.outputs.ver }} aztec \
-            start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
+          VERSION=${{ steps.basever.outputs.ver }} aztec start \
+            --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
       
       # - name: Cache node_modules (BASE)
@@ -135,7 +135,7 @@ jobs:
         run: yarn compile
 
       - name: Codegen wrappers (BASE)
-        run: script -e -c "aztec codegen target --outdir src/artifacts --force"
+        run: yarn codegen
 
       - name: Benchmark (BASE)
         run: |
