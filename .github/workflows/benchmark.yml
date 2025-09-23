@@ -218,11 +218,9 @@ jobs:
           key: ${{ runner.os }}-noir-${{ env.AZTEC_VERSION }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
 
       - name: Compile contracts (PR)
-        if: steps.cache-noir-pr.outputs.cache-hit != 'true'
-        run: script -e -c "yarn build"
+        run: yarn compile
 
       - name: Codegen wrappers (PR)
-        if: steps.cache-noir-pr.outputs.cache-hit != 'true'
         run: script -e -c "aztec codegen target --outdir src/artifacts --force"
 
       # ──────────────────────────────────────────────────────────────
