@@ -103,7 +103,7 @@ jobs:
           VERSION=${{ steps.basever.outputs.ver }} aztec-up
 
       - name: Start sandbox (BASE, background)
-        run: aztec start --sandbox &
+        run: VERSION=${{ steps.basever.outputs.ver }} aztec start --sandbox &
 
       - name: Start PXE node (BASE, background)
         run: |
@@ -111,25 +111,25 @@ jobs:
             start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
       
-      - name: Cache node_modules (BASE)
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-
+      # - name: Cache node_modules (BASE)
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: node_modules
+      #     key: ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-${{ hashFiles('yarn.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-
 
       - name: Install deps (BASE)
         run: yarn install --frozen-lockfile
 
-      - name: Cache Noir compilation artifacts (BASE)
-        id: cache-noir-base
-        uses: actions/cache@v4
-        with:
-          path: |
-            target/
-            src/artifacts/
-          key: ${{ runner.os }}-noir-${{ env.AZTEC_VERSION }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
+      # - name: Cache Noir compilation artifacts (BASE)
+      #   id: cache-noir-base
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       target/
+      #       src/artifacts/
+      #     key: ${{ runner.os }}-noir-${{ env.AZTEC_VERSION }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
 
       - name: Compile contracts (BASE)
         run: yarn compile
@@ -188,7 +188,7 @@ jobs:
 
       - name: Start sandbox (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
-        run: aztec start --sandbox &
+        run: VERSION=${{ steps.prver.outputs.ver }} aztec start --sandbox &
 
       - name: Start PXE node (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
@@ -197,25 +197,25 @@ jobs:
             start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
       
-      - name: Cache node_modules (PR)
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-
+      # - name: Cache node_modules (PR)
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: node_modules
+      #     key: ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-${{ hashFiles('yarn.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-
 
       - name: Install deps (PR)
         run: yarn install --frozen-lockfile
 
-      - name: Cache Noir compilation artifacts (PR)
-        id: cache-noir-pr
-        uses: actions/cache@v4
-        with:
-          path: |
-            target/
-            src/artifacts/
-          key: ${{ runner.os }}-noir-${{ env.AZTEC_VERSION }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
+      # - name: Cache Noir compilation artifacts (PR)
+      #   id: cache-noir-pr
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: |
+      #       target/
+      #       src/artifacts/
+      #     key: ${{ runner.os }}-noir-${{ steps.prver.outputs.ver }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
 
       - name: Compile contracts (PR)
         run: yarn compile
