@@ -132,11 +132,9 @@ jobs:
           key: ${{ runner.os }}-noir-${{ env.AZTEC_VERSION }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
 
       - name: Compile contracts (BASE)
-        if: steps.cache-noir-base.outputs.cache-hit != 'true'
         run: yarn build || yarn compile
 
       - name: Codegen wrappers (BASE)
-        if: steps.cache-noir-base.outputs.cache-hit != 'true'
         run: script -e -c "aztec codegen target --outdir src/artifacts --force"
 
       - name: Benchmark (BASE)
