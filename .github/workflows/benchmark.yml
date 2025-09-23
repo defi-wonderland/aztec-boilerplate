@@ -115,9 +115,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-modules-
+            ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-
 
       - name: Install deps (BASE)
         run: yarn install --frozen-lockfile
@@ -201,9 +201,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-modules-
+            ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-
 
       - name: Install deps (PR)
         run: yarn install --frozen-lockfile
