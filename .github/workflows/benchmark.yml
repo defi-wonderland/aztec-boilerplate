@@ -205,7 +205,7 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}
+            ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-${{ hashFiles('yarn.lock') }}
 
       - name: Install deps (PR)
         run: yarn install --frozen-lockfile
