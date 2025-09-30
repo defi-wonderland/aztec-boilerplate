@@ -200,7 +200,7 @@ jobs:
             --pxe.proverEnabled false &
 
       - name: Clean node_modules from BASE stage
-        run: rm -rf node_modules
+        run: yarn clean
 
       - name: Cache node_modules (PR)
         uses: actions/cache@v4
