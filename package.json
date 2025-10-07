@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "build": "yarn clean && yarn compile && yarn codegen",
     "clean": "rm -rf ./src/artifacts ./target codegenCache.json",
     "codegen": "aztec codegen target --outdir src/artifacts -f",
     "compile": "aztec-nargo compile && aztec-postprocess-contract",
