@@ -17,7 +17,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.ts": "prettier --write -u"
+    "*.{js,ts}": "prettier --write -u"
   },
   "dependencies": {
     "@aztec/accounts": "2.0.3",
