@@ -35,7 +35,7 @@ jobs:
 
       - name: Validate commit messages
         if: github.event_name == 'push'
-        run: yarn commitlint --from=HEAD~1 --to=HEAD --verbose
+        run: yarn commitlint --from=${{ github.event.before }} --to=${{ github.sha }} --verbose
 
       - name: Validate PR title
         if: github.event_name == 'pull_request'
