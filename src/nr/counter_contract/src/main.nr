@@ -5,8 +5,9 @@ pub mod test;
 pub contract Counter {
     // aztec library imports
     use aztec::{
-        macros::{functions::{initializer, internal, private, public}, storage::storage},
-        prelude::{AztecAddress, PublicImmutable, PublicMutable},
+        macros::{functions::{initializer, internal, private, public, view}, storage::storage},
+        protocol_types::address::AztecAddress,
+        state_vars::{PublicImmutable, PublicMutable},
     };
 
     // @param owner The address of the owner
@@ -41,6 +42,7 @@ pub contract Counter {
     /// @dev Retrieves the counter value
     /// @return The current counter value
     #[public]
+    #[view]
     fn get_counter() -> u128 {
         storage.counter.read()
     }

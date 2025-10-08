@@ -5,8 +5,8 @@ import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
 import {
   Benchmark,
   type BenchmarkContext,
-  type BenchmarkedInteraction,
 } from "@defi-wonderland/aztec-benchmark";
+import { NamedBenchmarkedInteraction } from "@defi-wonderland/aztec-benchmark/dist/types.js";
 
 import { CounterContract } from "../src/artifacts/Counter.js";
 import { deployCounter } from "../src/ts/utils.js";
@@ -44,13 +44,16 @@ export default class CounterContractBenchmark extends Benchmark {
   /**
    * Returns the list of CounterContract methods to be benchmarked.
    */
-  getMethods(context: CounterBenchmarkContext): BenchmarkedInteraction[] {
+  getMethods(context: CounterBenchmarkContext): NamedBenchmarkedInteraction[] {
     const { counterContract, accounts } = context;
     const [alice] = accounts;
 
     const methods = [
-      counterContract.withWallet(alice).methods.increment(),
-    ] as BenchmarkedInteraction[];
+      {
+        interaction: counterContract.withWallet(alice).methods.increment(),
+        name: "increment",
+      },
+    ] as NamedBenchmarkedInteraction[];
 
     return methods.filter(Boolean);
   }
