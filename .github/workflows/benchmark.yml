@@ -103,21 +103,21 @@ jobs:
           VERSION=${{ steps.basever.outputs.ver }} aztec-up
 
       - name: Start sandbox (BASE, background)
-        run: aztec start --sandbox &
+        run: VERSION=${{ steps.basever.outputs.ver }} aztec start --sandbox &
 
       - name: Start PXE node (BASE, background)
         run: |
-          VERSION=${{ steps.basever.outputs.ver }} aztec \
-            start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
+          VERSION=${{ steps.basever.outputs.ver }} aztec start \
+            --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
       
       - name: Cache node_modules (BASE)
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-modules-
+            ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-
 
       - name: Install deps (BASE)
         run: yarn install --frozen-lockfile
@@ -129,15 +129,13 @@ jobs:
           path: |
             target/
             src/artifacts/
-          key: ${{ runner.os }}-noir-${{ env.AZTEC_VERSION }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
+          key: ${{ runner.os }}-noir-${{ steps.basever.outputs.ver }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
 
       - name: Compile contracts (BASE)
-        if: steps.cache-noir-base.outputs.cache-hit != 'true'
-        run: script -e -c "${AZTEC_NARGO:-aztec-nargo} compile"
+        run: yarn compile
 
       - name: Codegen wrappers (BASE)
-        if: steps.cache-noir-base.outputs.cache-hit != 'true'
-        run: script -e -c "aztec codegen target --outdir src/artifacts --force"
+        run: yarn codegen
 
       - name: Benchmark (BASE)
         run: |
@@ -190,22 +188,27 @@ jobs:
 
       - name: Start sandbox (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
-        run: aztec start --sandbox &
+        run: |
+          VERSION=${{ steps.prver.outputs.ver }} aztec start --sandbox &
+          sleep 60
 
       - name: Start PXE node (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
         run: |
-          VERSION=${{ steps.prver.outputs.ver }} aztec \
-            start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
+          VERSION=${{ steps.prver.outputs.ver }} aztec start \
+            --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
-      
+
+      - name: Clean project from BASE stage
+        run: rm -rf node_modules yarn.lock
+
       - name: Cache node_modules (PR)
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-modules-
+            ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-
 
       - name: Install deps (PR)
         run: yarn install --frozen-lockfile
@@ -217,15 +220,13 @@ jobs:
           path: |
             target/
             src/artifacts/
-          key: ${{ runner.os }}-noir-${{ env.AZTEC_VERSION }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
+          key: ${{ runner.os }}-noir-${{ steps.prver.outputs.ver }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
 
       - name: Compile contracts (PR)
-        if: steps.cache-noir-pr.outputs.cache-hit != 'true'
-        run: script -e -c "${AZTEC_NARGO:-aztec-nargo} compile"
+        run: yarn compile
 
       - name: Codegen wrappers (PR)
-        if: steps.cache-noir-pr.outputs.cache-hit != 'true'
-        run: script -e -c "aztec codegen target --outdir src/artifacts --force"
+        run: yarn codegen
 
       # ──────────────────────────────────────────────────────────────
       # 3️⃣  DIFF &  UPLOAD ARTIFACTS

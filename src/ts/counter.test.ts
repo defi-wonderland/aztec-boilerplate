@@ -39,13 +39,28 @@ describe("Counter Contract", () => {
   });
 
   it("e2e", async () => {
-    const owner = await counter.methods.get_owner().simulate();
+    const owner = await counter.methods.get_owner().simulate({
+      from: alice.getAddress(),
+    });
     expect(owner).toStrictEqual(alice.getAddress());
     // default counter's value is 0
-    expect(await counter.methods.get_counter().simulate()).toBe(0n);
+    expect(
+      await counter.methods.get_counter().simulate({
+        from: alice.getAddress(),
+      }),
+    ).toBe(0n);
     // call to `increment`
-    await counter.methods.increment().send().wait();
+    await counter.methods
+      .increment()
+      .send({
+        from: alice.getAddress(),
+      })
+      .wait();
     // now the counter should be incremented.
-    expect(await counter.methods.get_counter().simulate()).toBe(1n);
+    expect(
+      await counter.methods.get_counter().simulate({
+        from: alice.getAddress(),
+      }),
+    ).toBe(1n);
   });
 });

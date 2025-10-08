@@ -7,28 +7,31 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf ./src/artifacts ./target codegenCache.json",
-    "codegen": "aztec codegen target --outdir src/artifacts",
-    "compile": "aztec-nargo compile",
+    "codegen": "aztec codegen target --outdir src/artifacts -f",
+    "compile": "aztec-nargo compile && aztec-postprocess-contract",
     "test": "yarn test:nr && yarn test:js",
     "test:js": "vitest run",
     "test:nr": "aztec test",
     "lint:prettier": "prettier '**/*.{js,ts}' --write",
-    "build": "yarn compile && yarn codegen -f",
+    "ccc": "yarn clean && yarn compile && yarn codegen -f",
     "prepare": "husky"
   },
   "lint-staged": {
     "*.{js,ts}": "prettier --write -u"
   },
   "dependencies": {
-    "@aztec/accounts": "1.2.1",
-    "@aztec/aztec.js": "1.2.1",
-    "@aztec/noir-contracts.js": "1.2.1",
-    "@defi-wonderland/aztec-benchmark": "1.0.1"
+    "@aztec/accounts": "2.0.3",
+    "@aztec/aztec.js": "2.0.3",
+    "@aztec/noir-contracts.js": "2.0.3",
+    "@defi-wonderland/aztec-benchmark": "2.0.0",
+    "@types/node": "22.5.1"
   },
   "devDependencies": {
-    "@types/node": "22.5.1",
     "@commitlint/cli": "19.8.1",
     "@commitlint/config-conventional": "19.8.1",
+    "@types/jest": "29.5.11",
+    "@types/mocha": "10.0.6",
+    "@types/node": "22.5.1",
     "husky": "9.1.7",
     "tsx": "4.20.4",
     "lint-staged": "16.1.5",
@@ -37,7 +40,7 @@
     "vitest": "3.2.4"
   },
   "config": {
-    "aztecVersion": "1.2.1"
+    "aztecVersion": "2.0.3"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "engines": {
