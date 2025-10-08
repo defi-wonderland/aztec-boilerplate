@@ -61,11 +61,14 @@ jobs:
 
       - name: Compile contracts
         if: steps.cache-noir.outputs.cache-hit != 'true'
-        run: script -e -c "${AZTEC_NARGO:-aztec-nargo} compile"
+        run: yarn compile
 
       - name: Generate artifacts
         if: steps.cache-noir.outputs.cache-hit != 'true'
-        run: script -e -c "aztec codegen target --outdir src/artifacts"
+        run: yarn codegen -f
+
+      - name: Postprocess contracts
+        run: aztec-postprocess-contract
 
       - name: Run nr tests
         run: yarn test:nr

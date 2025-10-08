@@ -38,7 +38,9 @@ export async function deployCounter(
     [owner],
     "constructor", // not actually needed since it's the default constructor
   )
-    .send()
+    .send({
+      from: deployer.getAddress(),
+    })
     .deployed();
   return contract as CounterContract;
 }
