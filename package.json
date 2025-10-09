@@ -14,6 +14,7 @@
     "test:nr": "aztec test",
     "lint:prettier": "prettier '**/*.{js,ts}' --write",
     "ccc": "yarn clean && yarn compile && yarn codegen -f",
+    "benchmark": "aztec-benchmark --suffix _base",
     "prepare": "husky"
   },
   "lint-staged": {
