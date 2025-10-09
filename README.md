@@ -38,7 +38,7 @@
 The complete build pipeline includes cleaning, compiling Noir contracts, and generating TypeScript artifacts:
 
 ```bash
-yarn build
+yarn ccc
 ```
 
 This runs:

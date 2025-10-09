@@ -19,7 +19,7 @@ jobs:
 
       - name: Check for relevant changes
         id: changes
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             console.log('Checking for changes that would affect benchmarks...');
