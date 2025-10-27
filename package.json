@@ -25,14 +25,14 @@
     "@aztec/aztec.js": "2.0.3",
     "@aztec/noir-contracts.js": "2.0.3",
     "@defi-wonderland/aztec-benchmark": "2.0.0",
-    "@types/node": "22.5.1"
+    "@types/node": "24.9.1"
   },
   "devDependencies": {
     "@types/jest": "30.0.0",
     "@commitlint/cli": "20.1.0",
     "@commitlint/config-conventional": "20.0.0",
     "@types/mocha": "10.0.6",
-    "@types/node": "22.5.1",
+    "@types/node": "24.9.1",
     "husky": "9.1.7",
     "tsx": "4.20.4",
     "lint-staged": "16.2.3",
