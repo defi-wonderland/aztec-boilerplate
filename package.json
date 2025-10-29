@@ -14,10 +14,11 @@
     "test:nr": "aztec test",
     "lint:prettier": "prettier '**/*.{js,ts}' --write",
     "ccc": "yarn clean && yarn compile && yarn codegen -f",
+    "benchmark": "aztec-benchmark --suffix _base",
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.ts": "prettier --write -u"
+    "*.{js,ts}": "prettier --write -u"
   },
   "dependencies": {
     "@aztec/accounts": "3.0.0-devnet.2",
@@ -31,16 +32,16 @@
     "@types/node": "22.5.1"
   },
   "devDependencies": {
-    "@commitlint/cli": "19.8.1",
-    "@commitlint/config-conventional": "19.8.1",
-    "@types/jest": "29.5.11",
+    "@types/jest": "30.0.0",
+    "@commitlint/cli": "20.1.0",
+    "@commitlint/config-conventional": "20.0.0",
     "@types/mocha": "10.0.6",
     "@types/node": "22.5.1",
     "husky": "9.1.7",
-    "tsx": "4.20.4",
-    "lint-staged": "16.1.5",
+    "lint-staged": "16.2.3",
+    "tsx": "4.20.5",
     "prettier": "3.6.2",
-    "typescript": "5.9.2",
+    "typescript": "5.9.3",
     "vitest": "3.2.4"
   },
   "config": {
