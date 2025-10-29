@@ -1,8 +1,4 @@
-import { getInitialTestAccountsData } from "@aztec/accounts/testing";
-import {
-  CounterContract,
-  CounterContractArtifact,
-} from "../artifacts/Counter.js";
+import { CounterContract } from "../artifacts/Counter.js";
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { PXE } from "@aztec/pxe/server";
 import { AccountWithSecretKey } from "@aztec/aztec.js/account";
