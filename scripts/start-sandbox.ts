@@ -1,6 +1,7 @@
 import { spawn, ChildProcess } from "child_process";
 import { EventEmitter } from "events";
-import { createPXEClient, waitForPXE, PXE } from "@aztec/aztec.js";
+import { createPXE, PXE } from "@aztec/pxe/server";
+import { AztecNode, createAztecNodeClient } from "@aztec/aztec.js/node";
 
 // Global reference for the active sandbox manager
 let activeSandboxManager: SandboxManager | null = null;
@@ -264,15 +265,16 @@ class SandboxManager extends EventEmitter {
   async checkSandboxConnectivity(): Promise<void> {
     console.time(`✅ Sandbox ready`);
 
-    const pxe: PXE = createPXEClient("http://localhost:8080");
-
-    // Use waitForPXE without timeout parameter - it handles retries internally
-    await waitForPXE(pxe);
+    const node: AztecNode = createAztecNodeClient("http://localhost:8080");
+    const pxe: PXE = await createPXE(node, {
+      dataDirectory: "./pxe-data",
+      dataStoreMapSizeKb: 1024,
+    });
 
     console.timeEnd(`✅ Sandbox ready`);
 
     // Additional check to ensure PXE is fully ready
-    const nodeInfo = await pxe.getNodeInfo();
+    const nodeInfo = await node.getNodeInfo();
 
     console.log(`🔧 Node version: ${nodeInfo.nodeVersion}`);
   }
