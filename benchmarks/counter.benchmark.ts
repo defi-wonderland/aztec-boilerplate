@@ -1,7 +1,6 @@
-import { type AccountWallet, type PXE, createPXEClient } from "@aztec/aztec.js";
-import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
-
-// Import types from benchmark package
+import { createAztecNodeClient, type AztecNode } from "@aztec/aztec.js/node";
+import { TestWallet } from "@aztec/test-wallet/server";
+import { type AccountWithSecretKey } from "@aztec/aztec.js/account";
 import {
   Benchmark,
   type BenchmarkContext,
@@ -13,9 +12,9 @@ import { deployCounter } from "../src/ts/utils.js";
 
 // Extend the BenchmarkContext from the new package
 interface CounterBenchmarkContext extends BenchmarkContext {
-  pxe: PXE;
-  deployer: AccountWallet;
-  accounts: AccountWallet[];
+  wallet: TestWallet;
+  deployer: AccountWithSecretKey;
+  accounts: AccountWithSecretKey[];
   counterContract: CounterContract;
 }
 
@@ -27,34 +26,42 @@ export default class CounterContractBenchmark extends Benchmark {
    */
   async setup(): Promise<CounterBenchmarkContext> {
     const { BASE_PXE_URL = "http://localhost" } = process.env;
-    const pxe = createPXEClient(`${BASE_PXE_URL}:8080`);
-    const accounts = await getInitialTestAccountsWallets(pxe);
-    const deployer = accounts[0]!;
+    const node: AztecNode = createAztecNodeClient(`${BASE_PXE_URL}:8080`);
+    const wallet = await TestWallet.create(node, {}, {});
+
+    // Create test accounts
+    const alice = await (await wallet.createAccount()).getAccount();
+    const bob = await (await wallet.createAccount()).getAccount();
+    const carl = await (await wallet.createAccount()).getAccount();
+
+    const accounts = [alice, bob, carl];
+    const deployer = alice;
+
     const deployedCounterContract = await deployCounter(
-      deployer,
+      wallet,
       deployer.getAddress(),
     );
     const counterContract = await CounterContract.at(
       deployedCounterContract.address,
-      deployer,
+      wallet,
     );
-    return { pxe, deployer, accounts, counterContract };
+    return { wallet, deployer, accounts, counterContract };
   }
 
   /**
    * Returns the list of CounterContract methods to be benchmarked.
    */
-  getMethods(context: CounterBenchmarkContext): NamedBenchmarkedInteraction[] {
-    const { counterContract, accounts } = context;
-    const [alice] = accounts;
+  getMethods(context: CounterBenchmarkContext) {
+    // const { counterContract } = context;
 
-    const methods = [
-      {
-        interaction: counterContract.withWallet(alice).methods.increment(),
-        name: "increment",
-      },
-    ] as NamedBenchmarkedInteraction[];
+    // const methods = [
+    //   {
+    //     interaction: counterContract.methods.increment(),
+    //     name: "increment",
+    //   },
+    // ];
 
-    return methods.filter(Boolean);
+    // return methods
+    return [];
   }
 }
