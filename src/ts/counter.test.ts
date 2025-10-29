@@ -7,7 +7,6 @@ import { createAztecNodeClient } from "@aztec/aztec.js/node";
 import { deployCounter } from "./utils.js";
 
 describe("Counter Contract", () => {
-  let pxe: PXE;
   let wallet: TestWallet;
 
   let alice: AccountWithSecretKey;
@@ -17,11 +16,8 @@ describe("Counter Contract", () => {
   let counter: CounterContract;
 
   beforeAll(async () => {
-    // pxe = await setupSandbox();
-
     const aztecNode = await createAztecNodeClient("http://localhost:8080", {});
     wallet = await TestWallet.create(aztecNode, {}, {});
-    // const accounts = await wallet.getAccounts();
 
     alice = await (await wallet.createAccount()).getAccount();
     bob = await (await wallet.createAccount()).getAccount();
