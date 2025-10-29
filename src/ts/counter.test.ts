@@ -1,41 +1,39 @@
+import { getInitialTestAccountsData } from "@aztec/accounts/testing";
 import {
   CounterContract,
   CounterContractArtifact,
 } from "../artifacts/Counter.js";
-import {
-  AccountWallet,
-  CompleteAddress,
-  PXE,
-  AccountWalletWithSecretKey,
-} from "@aztec/aztec.js";
-import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
-import { deployCounter, setupSandbox } from "./utils.js";
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
+import { PXE } from "@aztec/pxe/server";
+import { AccountWithSecretKey } from "@aztec/aztec.js/account";
+import { TestWallet } from "@aztec/test-wallet/server";
+import { createAztecNodeClient } from "@aztec/aztec.js/node";
+import { deployCounter } from "./utils.js";
 
 describe("Counter Contract", () => {
   let pxe: PXE;
-  let wallets: AccountWalletWithSecretKey[] = [];
-  let accounts: CompleteAddress[] = [];
+  let wallet: TestWallet;
 
-  let alice: AccountWallet;
-  let bob: AccountWallet;
-  let carl: AccountWallet;
+  let alice: AccountWithSecretKey;
+  let bob: AccountWithSecretKey;
+  let carl: AccountWithSecretKey;
 
   let counter: CounterContract;
 
   beforeAll(async () => {
-    pxe = await setupSandbox();
+    // pxe = await setupSandbox();
 
-    wallets = await getInitialTestAccountsWallets(pxe);
-    accounts = wallets.map((w) => w.getCompleteAddress());
+    const aztecNode = await createAztecNodeClient("http://localhost:8080", {});
+    wallet = await TestWallet.create(aztecNode, {}, {});
+    // const accounts = await wallet.getAccounts();
 
-    alice = wallets[0];
-    bob = wallets[1];
-    carl = wallets[2];
+    alice = await (await wallet.createAccount()).getAccount();
+    bob = await (await wallet.createAccount()).getAccount();
+    carl = await (await wallet.createAccount()).getAccount();
   });
 
   beforeEach(async () => {
-    counter = await deployCounter(alice, alice.getAddress());
+    counter = await deployCounter(wallet, alice.getAddress());
   });
 
   it("e2e", async () => {
