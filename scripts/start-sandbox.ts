@@ -1,7 +1,6 @@
 import { spawn, ChildProcess } from "child_process";
 import { EventEmitter } from "events";
-import { createPXE, PXE } from "@aztec/pxe/server";
-import { AztecNode, createAztecNodeClient } from "@aztec/aztec.js/node";
+import { createAztecNodeClient } from "@aztec/aztec.js/node";
 
 // Global reference for the active sandbox manager
 let activeSandboxManager: SandboxManager | null = null;
@@ -265,18 +264,42 @@ class SandboxManager extends EventEmitter {
   async checkSandboxConnectivity(): Promise<void> {
     console.time(`✅ Sandbox ready`);
 
-    const node: AztecNode = createAztecNodeClient("http://localhost:8080");
-    const pxe: PXE = await createPXE(node, {
-      dataDirectory: "./pxe-data",
-      dataStoreMapSizeKb: 1024,
-    });
+    const maxRetries = 60; // 60 retries
+    const retryDelayMs = 3000; // 3 seconds between retries
+    let lastError: Error | null = null;
 
-    console.timeEnd(`✅ Sandbox ready`);
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        // Try to connect to the Aztec node
+        const aztecNode = await createAztecNodeClient(
+          "http://localhost:8080",
+          {},
+        );
 
-    // Additional check to ensure PXE is fully ready
-    const nodeInfo = await node.getNodeInfo();
+        // Try to get node info to verify it's responsive
+        const nodeInfo = await aztecNode.getNodeInfo();
 
-    console.log(`🔧 Node version: ${nodeInfo.nodeVersion}`);
+        console.timeEnd(`✅ Sandbox ready`);
+        console.log(`🔧 Node version: ${nodeInfo.nodeVersion}`);
+        return; // Success!
+      } catch (error: any) {
+        lastError = error;
+
+        if (attempt < maxRetries) {
+          if (this.verbose) {
+            console.log(
+              `⏳ Sandbox not ready yet (attempt ${attempt}/${maxRetries}), retrying in ${retryDelayMs / 1000}s...`,
+            );
+          }
+          await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+        }
+      }
+    }
+
+    // If we get here, all retries failed
+    throw new Error(
+      `Failed to connect to sandbox after ${maxRetries} attempts: ${lastError?.message}`,
+    );
   }
 
   async start(): Promise<SandboxManager> {
