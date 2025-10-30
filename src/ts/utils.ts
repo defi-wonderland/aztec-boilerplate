@@ -5,6 +5,7 @@ import {
 } from "../artifacts/Counter.js";
 import { AztecAddress } from "@aztec/stdlib/aztec-address";
 import { Contract } from "@aztec/aztec.js/contracts";
+import { Fr } from "@aztec/aztec.js/fields";
 
 /**
  * Deploys the Counter contract.
@@ -17,15 +18,15 @@ export async function deployCounter(
   owner: AztecAddress,
 ): Promise<CounterContract> {
   const deployerAddress = (await deployer.getAccounts())[0]!.item;
-  const contract = await Contract.deploy(
+  const deployMethod = await Contract.deploy(
     deployer,
     CounterContractArtifact,
     [owner],
     "constructor", // not actually needed since it's the default constructor
-  )
-    .send({
-      from: deployerAddress,
-    })
-    .deployed();
+  );
+  const tx = await deployMethod.send({
+    from: deployerAddress,
+  });
+  const contract = await tx.deployed();
   return contract as CounterContract;
 }
