@@ -338,7 +338,20 @@ class SandboxManager extends EventEmitter {
         "startupTimeout",
       );
 
-      // Start connectivity checking in parallel
+      // Spawn and setup process FIRST
+      try {
+        this.process = this.spawnSandboxProcess();
+        this.setupProcessHandlers(this.process, safeResolve, safeReject);
+      } catch (error: any) {
+        this.handleError(
+          `Failed to spawn sandbox process: ${error.message}`,
+          "process-spawn",
+          safeReject,
+        );
+        return;
+      }
+
+      // Start connectivity checking in parallel AFTER spawning the process
       console.log("🔍 Waiting for sandbox to be ready");
       (async () => {
         try {
@@ -356,18 +369,6 @@ class SandboxManager extends EventEmitter {
           );
         }
       })();
-
-      // Spawn and setup process
-      try {
-        this.process = this.spawnSandboxProcess();
-        this.setupProcessHandlers(this.process, safeResolve, safeReject);
-      } catch (error: any) {
-        this.handleError(
-          `Failed to spawn sandbox process: ${error.message}`,
-          "process-spawn",
-          safeReject,
-        );
-      }
     });
   }
 
