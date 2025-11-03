@@ -50,5 +50,8 @@
   "engines": {
     "node": ">=22.0.0",
     "yarn": ">=1.22.0"
+  },
+  "resolutions": {
+    "@noble/hashes": "1.8.0"
   }
 }
