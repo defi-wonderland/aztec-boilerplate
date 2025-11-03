@@ -2,7 +2,7 @@ import { createRequire } from "node:module";
 import { defineConfig } from "vitest/config";
 
 const require = createRequire(import.meta.url);
-const nobleUtilsPath = require.resolve("@noble/hashes/esm/utils.js");
+const nobleUtilsPath = require.resolve("@noble/hashes/utils");
 
 export default defineConfig({
   resolve: {
