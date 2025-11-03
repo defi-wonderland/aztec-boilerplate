@@ -14,5 +14,12 @@ export default defineConfig({
         execArgv: ["--experimental-vm-modules"],
       },
     },
+    deps: {
+      optimizer: {
+        web: {
+          enabled: true,
+        },
+      },
+    },
   },
 });
