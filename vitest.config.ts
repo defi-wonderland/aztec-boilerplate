@@ -29,10 +29,9 @@ export default defineConfig({
         execArgv: ["--experimental-vm-modules"],
       },
     },
-    server: {
-      deps: {
-        inline: [/@noble\/hashes/],
-      },
+    deps: {
+      // Inline noble deps so Vite applies aliasing (ESM) instead of Node loading CJS directly
+      inline: [/@noble\/(hashes|curves|ciphers)/],
     },
   },
 });
