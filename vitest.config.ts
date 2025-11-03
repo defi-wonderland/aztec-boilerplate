@@ -7,5 +7,12 @@ export default defineConfig({
     testTimeout: 200000,
     globalSetup: "./vitest.setup.ts",
     fileParallelism: false,
+    pool: "forks",
+    poolOptions: {
+      forks: {
+        singleFork: true,
+        execArgv: ["--experimental-vm-modules"],
+      },
+    },
   },
 });
