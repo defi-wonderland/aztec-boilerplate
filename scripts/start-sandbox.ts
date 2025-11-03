@@ -169,12 +169,8 @@ class SandboxManager extends EventEmitter {
     // The sandbox will start its own Anvil instance on the default port
     const l1RpcUrl = process.env.L1_RPC_URL || "http://127.0.0.1:8545";
 
-    return spawn("aztec", ["start", "--sandbox"], {
+    return spawn("aztec", ["start", "--sandbox", "--l1-rpc-urls", l1RpcUrl], {
       stdio: "pipe",
-      env: {
-        ...process.env,
-        ETHEREUM_HOSTS: l1RpcUrl,
-      },
     });
   }
 
