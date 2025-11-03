@@ -7,5 +7,11 @@ export default defineConfig({
     testTimeout: 200000,
     globalSetup: "./vitest.setup.ts",
     fileParallelism: false,
+    // Handle CommonJS dependencies
+    server: {
+      deps: {
+        inline: ["@noble/hashes"],
+      },
+    },
   },
 });
