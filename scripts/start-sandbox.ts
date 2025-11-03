@@ -58,9 +58,13 @@ class SandboxManager extends EventEmitter {
   // Timer/interval tracking for centralized cleanup
   private timers: Record<string, NodeJS.Timeout> = {};
 
+  // Capture stderr for error reporting
+  private stderrBuffer: string[] = [];
+
   constructor(options: SandboxManagerOptions = {}) {
     super();
-    this.verbose = options.verbose ?? false;
+    // Enable verbose mode in CI environments by default
+    this.verbose = options.verbose ?? Boolean(process.env.CI);
 
     // Register this manager for signal handling
     activeSandboxManager = this;
@@ -122,6 +126,7 @@ class SandboxManager extends EventEmitter {
     // Reset instance state
     this.process = null;
     this.isReady = false;
+    this.stderrBuffer = [];
 
     // Only reset external flag if not preserving it
     if (!preserveExternalFlag) {
@@ -205,6 +210,9 @@ class SandboxManager extends EventEmitter {
       process.stderr.on("data", (data: Buffer) => {
         const output = data.toString().trim();
         if (output) {
+          // Always capture stderr for error reporting
+          this.stderrBuffer.push(output);
+
           if (this.verbose) {
             console.log(`🚨 Sandbox error: ${output}`);
           }
@@ -244,15 +252,21 @@ class SandboxManager extends EventEmitter {
     // Handle process exit
     process.on("exit", (code: number | null, signal: NodeJS.Signals | null) => {
       if (!this.isReady) {
+        // Format stderr buffer for error message
+        const stderrOutput =
+          this.stderrBuffer.length > 0
+            ? `\n\nStderr output:\n${this.stderrBuffer.slice(-10).join("\n")}`
+            : "";
+
         if (code === 0) {
           this.handleError(
-            "Sandbox process exited unexpectedly",
+            `Sandbox process exited unexpectedly${stderrOutput}`,
             "process-exit",
             safeReject,
           );
         } else {
           this.handleError(
-            `Sandbox process exited with code ${code} and signal ${signal}`,
+            `Sandbox process exited with code ${code} and signal ${signal}${stderrOutput}`,
             "process-exit",
             safeReject,
           );
