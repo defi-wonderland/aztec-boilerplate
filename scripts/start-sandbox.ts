@@ -165,8 +165,16 @@ class SandboxManager extends EventEmitter {
    * Spawn the Aztec sandbox process
    */
   spawnSandboxProcess(): ChildProcess {
+    // In devnet.2, an L1 RPC URL is required
+    // The sandbox will start its own Anvil instance on the default port
+    const l1RpcUrl = process.env.L1_RPC_URL || "http://127.0.0.1:8545";
+
     return spawn("aztec", ["start", "--sandbox"], {
       stdio: "pipe",
+      env: {
+        ...process.env,
+        ETHEREUM_HOSTS: l1RpcUrl,
+      },
     });
   }
 
