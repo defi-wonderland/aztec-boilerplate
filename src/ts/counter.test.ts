@@ -1,6 +1,5 @@
 import { CounterContract } from "../artifacts/Counter.js";
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
-import { getPXEConfig } from "@aztec/pxe/server";
 import { TestWallet } from "@aztec/test-wallet/server";
 import { createAztecNodeClient } from "@aztec/aztec.js/node";
 import { deployCounter } from "./utils.js";
@@ -18,11 +17,9 @@ describe("Counter Contract", () => {
 
   beforeAll(async () => {
     const aztecNode = await createAztecNodeClient("http://localhost:8080", {});
-    const config = getPXEConfig();
     wallet = await TestWallet.create(
       aztecNode,
       {
-        ...config,
         dataDirectory: "pxe-test",
         proverEnabled: false,
       },
