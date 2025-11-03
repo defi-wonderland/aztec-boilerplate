@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const nobleUtilsPath = pathResolve(
   __dirname,
-  "node_modules/@noble/hashes/utils.js",
+  "node_modules/@noble/hashes/esm/utils.js",
 );
 
 export default defineConfig({
