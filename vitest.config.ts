@@ -1,7 +1,19 @@
+import { dirname, resolve as resolvePath } from "node:path";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vitest/config";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const nobleUtilsPath = resolvePath(
+  __dirname,
+  "node_modules/@noble/hashes/esm/utils.js",
+);
 
 export default defineConfig({
   resolve: {
+    alias: {
+      // Ensure Vitest always picks the hoisted version that includes `anumber`
+      "@noble/hashes/utils": nobleUtilsPath,
+    },
     conditions: ["import", "module", "browser", "default"],
   },
   test: {
