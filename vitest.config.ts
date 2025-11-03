@@ -1,6 +1,9 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  resolve: {
+    conditions: ["import", "module", "browser", "default"],
+  },
   test: {
     // aztec sandbox tests take quite some time
     hookTimeout: 200000,
@@ -14,11 +17,9 @@ export default defineConfig({
         execArgv: ["--experimental-vm-modules"],
       },
     },
-    deps: {
-      optimizer: {
-        web: {
-          enabled: true,
-        },
+    server: {
+      deps: {
+        inline: [/@noble\/hashes/],
       },
     },
   },

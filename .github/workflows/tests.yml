@@ -73,5 +73,8 @@ jobs:
       - name: Run nr tests
         run: yarn test:nr
 
+      - name: Clear Vite/Vitest cache
+        run: rm -rf node_modules/.vite node_modules/.vitest
+
       - name: Run js tests
         run: yarn test:js
