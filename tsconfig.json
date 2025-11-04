@@ -12,7 +12,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true
   },
-  "include": ["src/**/*", "scripts/**/*.ts", "benchmarks/**/*.ts", "jest.setup.ts", "jest.teardown.ts"],
+  "include": ["src/**/*", "scripts/**/*.ts", "benchmarks/**/*.ts", "jest.setup.ts", "jest.teardown.ts", "target/**/*"],
   "exclude": ["node_modules"]
 }
   
