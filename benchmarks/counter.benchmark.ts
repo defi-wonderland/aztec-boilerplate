@@ -12,7 +12,6 @@ import {
 } from "@defi-wonderland/aztec-benchmark";
 
 import { CounterContract } from "../src/artifacts/Counter.js";
-import { deployCounter } from "../src/ts/utils.js";
 
 // Extend the BenchmarkContext from the new package
 interface CounterBenchmarkContext extends BenchmarkContext {
@@ -37,11 +36,10 @@ export default class CounterContractBenchmark extends Benchmark {
 
     const [deployer] = accounts;
 
-    const deployedCounterContract = await deployCounter(wallet, deployer);
-    const counterContract = await CounterContract.at(
-      deployedCounterContract.address,
-      wallet,
-    );
+    const counterContract = await CounterContract.deploy(wallet, deployer)
+      .send({ from: deployer })
+      .deployed();
+
     return { wallet, deployer, accounts, counterContract };
   }
 
