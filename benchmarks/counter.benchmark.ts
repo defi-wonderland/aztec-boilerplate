@@ -1,7 +1,5 @@
-import type { Wallet } from "@aztec/aztec.js/wallet";
 import { AztecAddress } from "@aztec/aztec.js/addresses";
 import { createAztecNodeClient, waitForNode } from "@aztec/aztec.js/node";
-import type { ContractFunctionInteractionCallIntent } from "@aztec/aztec.js/authorization";
 import {
   registerInitialSandboxAccountsInWallet,
   TestWallet,
@@ -15,7 +13,7 @@ import { CounterContract } from "../src/artifacts/Counter.js";
 
 // Extend the BenchmarkContext from the new package
 interface CounterBenchmarkContext extends BenchmarkContext {
-  wallet: Wallet;
+  wallet: TestWallet;
   deployer: AztecAddress;
   accounts: AztecAddress[];
   counterContract: CounterContract;
@@ -50,10 +48,10 @@ export default class CounterContractBenchmark extends Benchmark {
    */
   getMethods(
     context: CounterBenchmarkContext,
-  ): ContractFunctionInteractionCallIntent[] {
+  ): { caller: AztecAddress; action: unknown }[] {
     const { counterContract, wallet, deployer } = context;
 
-    const methods: ContractFunctionInteractionCallIntent[] = [
+    const methods: { caller: AztecAddress; action: unknown }[] = [
       {
         caller: deployer,
         action: counterContract.withWallet(wallet).methods.increment(),
