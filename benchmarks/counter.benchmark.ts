@@ -1,11 +1,12 @@
 import { createAztecNodeClient, type AztecNode } from "@aztec/aztec.js/node";
 import { TestWallet } from "@aztec/test-wallet/server";
 import { type AccountWithSecretKey } from "@aztec/aztec.js/account";
+import { type ContractFunctionInteractionCallIntent } from "@aztec/aztec.js/authorization";
 import {
   Benchmark,
   type BenchmarkContext,
 } from "@defi-wonderland/aztec-benchmark";
-import { NamedBenchmarkedInteraction } from "@defi-wonderland/aztec-benchmark/dist/types.js";
+import { type NamedBenchmarkedInteraction } from "@defi-wonderland/aztec-benchmark/dist/types.js";
 
 import { CounterContract } from "../src/artifacts/Counter.js";
 import { deployCounter } from "../src/ts/utils.js";
@@ -51,17 +52,23 @@ export default class CounterContractBenchmark extends Benchmark {
   /**
    * Returns the list of CounterContract methods to be benchmarked.
    */
-  getMethods(context: CounterBenchmarkContext) {
-    // const { counterContract } = context;
+  getMethods(
+    context: CounterBenchmarkContext,
+  ): Array<
+    ContractFunctionInteractionCallIntent | NamedBenchmarkedInteraction
+  > {
+    const { counterContract, wallet, deployer } = context;
 
-    // const methods = [
-    //   {
-    //     interaction: counterContract.methods.increment(),
-    //     name: "increment",
-    //   },
-    // ];
+    const methods: NamedBenchmarkedInteraction[] = [
+      {
+        interaction: {
+          caller: deployer.getAddress(),
+          action: counterContract.withWallet(wallet).methods.increment(),
+        },
+        name: "increment",
+      },
+    ];
 
-    // return methods
-    return [];
+    return methods;
   }
 }
