@@ -27,14 +27,15 @@ export default defineConfig({
     poolOptions: {
       forks: {
         singleFork: true,
+        isolate: false,
         execArgv: ["--experimental-vm-modules"],
       },
     },
     // Use new API to inline dependencies through Vite's transform pipeline
-    // This ensures @aztec and @noble packages use Vite's module resolution with proper aliasing
+    // This ensures viem, @aztec, @noble, and @scure packages use Vite's module resolution with proper aliasing
     server: {
       deps: {
-        inline: [/@aztec/, /@noble\/(hashes|curves|ciphers)/],
+        inline: [/@aztec/, /@noble\/(hashes|curves|ciphers)/, /viem/, /@scure/],
       },
     },
   },
