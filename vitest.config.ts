@@ -30,9 +30,12 @@ export default defineConfig({
         execArgv: ["--experimental-vm-modules"],
       },
     },
-    deps: {
-      // Inline noble deps so Vite applies aliasing (ESM) instead of Node loading CJS directly
-      inline: [/@noble\/(hashes|curves|ciphers)/],
+    // Use new API to inline dependencies through Vite's transform pipeline
+    // This ensures @aztec and @noble packages use Vite's module resolution with proper aliasing
+    server: {
+      deps: {
+        inline: [/@aztec/, /@noble\/(hashes|curves|ciphers)/],
+      },
     },
   },
 });
