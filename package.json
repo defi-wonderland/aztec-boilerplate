@@ -28,6 +28,7 @@
     "@aztec/test-wallet": "3.0.0-devnet.2",
     "@aztec/pxe": "3.0.0-devnet.2",
     "@defi-wonderland/aztec-benchmark": "2.0.0",
+    "@noble/hashes": "1.8.0",
     "@types/node": "22.5.1"
   },
   "devDependencies": {
