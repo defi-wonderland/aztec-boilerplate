@@ -1,7 +1,11 @@
-import { createAztecNodeClient, type AztecNode } from "@aztec/aztec.js/node";
-import { TestWallet } from "@aztec/test-wallet/server";
+import type { Wallet } from "@aztec/aztec.js/wallet";
 import { AztecAddress } from "@aztec/aztec.js/addresses";
+import { createAztecNodeClient } from "@aztec/aztec.js/node";
 import type { ContractFunctionInteractionCallIntent } from "@aztec/aztec.js/authorization";
+import {
+  registerInitialSandboxAccountsInWallet,
+  TestWallet,
+} from "@aztec/test-wallet/server";
 import {
   Benchmark,
   type BenchmarkContext,
@@ -12,7 +16,7 @@ import { deployCounter } from "../src/ts/utils.js";
 
 // Extend the BenchmarkContext from the new package
 interface CounterBenchmarkContext extends BenchmarkContext {
-  wallet: TestWallet;
+  wallet: Wallet;
   deployer: AztecAddress;
   accounts: AztecAddress[];
   counterContract: CounterContract;
@@ -25,21 +29,13 @@ export default class CounterContractBenchmark extends Benchmark {
    * Creates PXE client, gets accounts, and deploys the contract.
    */
   async setup(): Promise<CounterBenchmarkContext> {
-    const { BASE_PXE_URL = "http://localhost" } = process.env;
-    const node: AztecNode = createAztecNodeClient(`${BASE_PXE_URL}:8080`);
-    const wallet = await TestWallet.create(node, {}, {});
+    const { NODE_URL = "http://localhost:8080" } = process.env;
+    const aztecNode = createAztecNodeClient(NODE_URL);
+    const wallet: TestWallet = await TestWallet.create(aztecNode);
+    const accounts: AztecAddress[] =
+      await registerInitialSandboxAccountsInWallet(wallet);
 
-    // Create test accounts
-    const aliceAccount = await (await wallet.createAccount()).getAccount();
-    const bobAccount = await (await wallet.createAccount()).getAccount();
-    const carlAccount = await (await wallet.createAccount()).getAccount();
-
-    const accounts = [
-      aliceAccount.getAddress(),
-      bobAccount.getAddress(),
-      carlAccount.getAddress(),
-    ];
-    const deployer = aliceAccount.getAddress();
+    const [deployer] = accounts;
 
     const deployedCounterContract = await deployCounter(wallet, deployer);
     const counterContract = await CounterContract.at(
