@@ -1,7 +1,7 @@
-import type { Wallet } from "@aztec/aztec.js/wallet";
+import { type Wallet } from "@aztec/aztec.js/wallet";
 import { AztecAddress } from "@aztec/aztec.js/addresses";
 import { createAztecNodeClient, waitForNode } from "@aztec/aztec.js/node";
-import type { ContractFunctionInteractionCallIntent } from "@aztec/aztec.js/authorization";
+import { type ContractFunctionInteractionCallIntent } from "@aztec/aztec.js/authorization";
 import {
   registerInitialSandboxAccountsInWallet,
   TestWallet,
