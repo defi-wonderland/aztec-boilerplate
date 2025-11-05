@@ -69,11 +69,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install and cache yarn
+      - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
           node-version: '22'
-          cache: 'yarn'
 
       - name: Install Aztec CLI
         run: |
@@ -111,14 +110,6 @@ jobs:
             --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
       
-      - name: Cache node_modules (BASE)
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-
-
       - name: Install deps (BASE)
         run: yarn install --frozen-lockfile
 
@@ -201,14 +192,6 @@ jobs:
 
       - name: Clean project from BASE stage
         run: rm -rf node_modules yarn.lock
-
-      - name: Cache node_modules (PR)
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-
 
       - name: Install deps (PR)
         run: yarn install --frozen-lockfile

@@ -21,7 +21,6 @@
     "*.{js,ts}": "prettier --write -u"
   },
   "dependencies": {
-    "@aztec/aztec.js": "3.0.0-devnet.2",
     "@aztec/accounts": "3.0.0-devnet.2",
     "@aztec/noir-contracts.js": "3.0.0-devnet.2",
     "@aztec/stdlib": "3.0.0-devnet.2",

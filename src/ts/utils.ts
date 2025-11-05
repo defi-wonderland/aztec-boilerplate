@@ -5,7 +5,6 @@ import {
 } from "../artifacts/Counter.js";
 import { AztecAddress } from "@aztec/stdlib/aztec-address";
 import { Contract } from "@aztec/aztec.js/contracts";
-import { Fr } from "@aztec/aztec.js/fields";
 
 /**
  * Deploys the Counter contract.

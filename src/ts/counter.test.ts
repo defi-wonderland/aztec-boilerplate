@@ -4,6 +4,7 @@ import { TestWallet } from "@aztec/test-wallet/server";
 import { createAztecNodeClient } from "@aztec/aztec.js/node";
 import { deployCounter } from "./utils.js";
 import { AztecAddress } from "@aztec/stdlib/aztec-address";
+
 import {
   INITIAL_TEST_SECRET_KEYS,
   INITIAL_TEST_ACCOUNT_SALTS,
