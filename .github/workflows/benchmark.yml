@@ -190,6 +190,11 @@ jobs:
             --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
 
+      # This is a temporary hack to fix a problem with v3 releases.
+      - name: Manually tag the aztec version as `latest`
+        run: |
+          docker tag aztecprotocol/aztec:${{ steps.prver.outputs.ver }} aztecprotocol/aztec:latest
+
       - name: Clean project from BASE stage
         run: rm -rf node_modules yarn.lock
 
