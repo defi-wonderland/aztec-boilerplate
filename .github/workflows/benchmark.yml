@@ -116,7 +116,7 @@ jobs:
           VERSION=${{ steps.basever.outputs.ver }} aztec-up
 
       - name: Start sandbox (BASE, background)
-        run: VERSION=${{ steps.basever.outputs.ver }} aztec start --sandbox &
+        run: aztec start --sandbox &
 
       - name: Start PXE node (BASE, background)
         run: |
@@ -141,7 +141,7 @@ jobs:
       # This is required to avoid the benchmark results being removed by the Checkout PR step
       - name: Store base benchmark results
         run: |
-          mkdir -p ../benchmarks_base && mv ${{ env.BENCH_DIR }}/* ../benchmarks_base/
+          mkdir -p ../benchmarks_base && mv ${{ env.BENCH_DIR }}/*.json ../benchmarks_base/
 
       # ──────────────────────────────────────────────────────────────
       # 2️⃣  BENCHMARK PR HEAD  (github.event.pull_request.head.sha)
@@ -185,9 +185,7 @@ jobs:
 
       - name: Start sandbox (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
-        run: |
-          VERSION=${{ steps.prver.outputs.ver }} aztec start --sandbox &
-          sleep 60
+        run: aztec start --sandbox &
 
       - name: Start PXE node (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
@@ -206,15 +204,6 @@ jobs:
 
       - name: Install deps (PR)
         run: yarn --frozen-lockfile
-
-      - name: Cache Noir compilation artifacts (PR)
-        id: cache-noir-pr
-        uses: actions/cache@v4
-        with:
-          path: |
-            target/
-            src/artifacts/
-          key: ${{ runner.os }}-noir-${{ steps.prver.outputs.ver }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
 
       - name: Compile contracts (PR)
         run: yarn compile
