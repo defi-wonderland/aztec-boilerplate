@@ -195,8 +195,8 @@ jobs:
         run: |
           docker tag aztecprotocol/aztec:${{ steps.prver.outputs.ver }} aztecprotocol/aztec:latest
 
-      - name: Clean project from BASE stage
-        run: rm -rf node_modules yarn.lock
+      # - name: Clean project from BASE stage
+      #   run: rm -rf node_modules yarn.lock
 
       - name: Install deps (PR)
         run: yarn install --frozen-lockfile
