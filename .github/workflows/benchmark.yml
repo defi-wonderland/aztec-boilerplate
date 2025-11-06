@@ -4,6 +4,15 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 env:
   BENCH_DIR: ./benchmarks
 
@@ -90,6 +99,11 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22.17.0'
+
       - name: Detect Aztec version (BASE)
         id: basever
         run: |
@@ -109,7 +123,7 @@ jobs:
           VERSION=${{ steps.basever.outputs.ver }} aztec start \
             --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
-      
+
       - name: Install deps (BASE)
         run: yarn install --frozen-lockfile
 
