@@ -122,15 +122,6 @@ jobs:
       - name: Install deps (BASE)
         run: yarn --frozen-lockfile
 
-      - name: Cache Noir compilation artifacts (BASE)
-        id: cache-noir-base
-        uses: actions/cache@v4
-        with:
-          path: |
-            target/
-            src/artifacts/
-          key: ${{ runner.os }}-noir-base-${{ steps.basever.outputs.ver }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
-
       - name: Compile contracts (BASE)
         run: yarn compile
 
@@ -207,15 +198,6 @@ jobs:
 
       - name: Install deps (PR)
         run: yarn --frozen-lockfile
-
-      - name: Cache Noir compilation artifacts (PR)
-        id: cache-noir-pr
-        uses: actions/cache@v4
-        with:
-          path: |
-            target/
-            src/artifacts/
-          key: ${{ runner.os }}-noir-pr-${{ steps.prver.outputs.ver }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
 
       - name: Compile contracts (PR)
         run: yarn compile
