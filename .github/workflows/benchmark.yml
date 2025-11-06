@@ -208,15 +208,6 @@ jobs:
       - name: Install deps (PR)
         run: yarn --frozen-lockfile
 
-      - name: Cache Noir compilation artifacts (PR)
-        id: cache-noir-pr
-        uses: actions/cache@v4
-        with:
-          path: |
-            target/
-            src/artifacts/
-          key: ${{ runner.os }}-noir-${{ steps.prver.outputs.ver }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
-
       - name: Compile contracts (PR)
         run: yarn compile
 
