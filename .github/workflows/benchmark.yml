@@ -135,7 +135,7 @@ jobs:
       # This is required to avoid the benchmark results being removed by the Checkout PR step
       - name: Store base benchmark results
         run: |
-          mkdir -p ../benchmarks_base && mv ${{ env.BENCH_DIR }}/* ../benchmarks_base/
+          mkdir -p ../benchmarks_base && mv ${{ env.BENCH_DIR }}/*.json ../benchmarks_base/
 
       # ──────────────────────────────────────────────────────────────
       # 2️⃣  BENCHMARK PR HEAD  (github.event.pull_request.head.sha)
