@@ -13,6 +13,8 @@ import {
 
 import { CounterContract } from "../src/artifacts/Counter.js";
 
+import { setupTestSuite } from "../src/ts/utils.js";
+
 // Extend the BenchmarkContext from the new package
 interface CounterBenchmarkContext extends BenchmarkContext {
   wallet: Wallet;
@@ -28,13 +30,7 @@ export default class CounterContractBenchmark extends Benchmark {
    * Creates PXE client, gets accounts, and deploys the contract.
    */
   async setup(): Promise<CounterBenchmarkContext> {
-    const { NODE_URL = "http://localhost:8080" } = process.env;
-    const aztecNode = createAztecNodeClient(NODE_URL);
-    await waitForNode(aztecNode);
-
-    const wallet: TestWallet = await TestWallet.create(aztecNode);
-    const accounts: AztecAddress[] =
-      await registerInitialSandboxAccountsInWallet(wallet);
+    const { wallet, accounts } = await setupTestSuite("bench-counter");
 
     const [deployer] = accounts;
 

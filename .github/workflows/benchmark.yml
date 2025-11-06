@@ -58,7 +58,15 @@ jobs:
     name: Run comparison
     needs: check-changes
     if: needs.check-changes.outputs.should-benchmark == 'true'
-    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest-m]
+        threads: [12]
+
+    runs-on: 
+      labels: ${{ matrix.os }}
+    timeout-minutes: 60
 
     steps:
       # ──────────────────────────────────────────────────────────────
@@ -68,6 +76,9 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
+      - name: Set up Docker Buildx (Aztec sandbox needs BuildKit)
+        uses: docker/setup-buildx-action@v2
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -194,9 +205,6 @@ jobs:
       - name: Manually tag the aztec version as `latest`
         run: |
           docker tag aztecprotocol/aztec:${{ steps.prver.outputs.ver }} aztecprotocol/aztec:latest
-
-      # - name: Clean project from BASE stage
-      #   run: rm -rf node_modules yarn.lock
 
       - name: Install deps (PR)
         run: yarn install --frozen-lockfile
