@@ -11,9 +11,17 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "inlineSourceMap": true,
+    "importHelpers": true,
+    "composite": true,
+    "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "scripts/**/*.ts", "benchmarks/**/*.ts", "jest.setup.ts", "jest.teardown.ts", "target/**/*"],
+  "include": ["src/**/*", "scripts/**/*.ts", "benchmarks/**/*.ts", "jest.setup.ts", "jest.teardown.ts", "target/**/*", "artifacts/**/*"],
   "exclude": ["node_modules"]
 }
   
@@ -28,12 +36,12 @@
 //     "moduleResolution": "NodeNext",
 //     "strict": true,
 //     "declaration": true,
+//     "declarationMap": true,
 //     "allowSyntheticDefaultImports": true,
 //     "allowJs": true,
 //     "esModuleInterop": true,
 //     "downlevelIteration": true,
 //     "inlineSourceMap": true,
-//     "declarationMap": true,
 //     "importHelpers": true,
 //     "resolveJsonModule": true,
 //     "composite": true,
