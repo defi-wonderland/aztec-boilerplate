@@ -110,6 +110,10 @@ jobs:
         run: |
           VERSION=${{ steps.basever.outputs.ver }} aztec-up
 
+      - name: Manually tag the aztec version as `latest`
+        run: |
+          docker tag aztecprotocol/aztec:${{ steps.basever.outputs.ver }} aztecprotocol/aztec:latest
+
       - name: Start sandbox (BASE, background)
         run: aztec start --sandbox &
 
@@ -176,6 +180,10 @@ jobs:
         if: steps.prver.outputs.ver_diff == 'true'
         run: |
           VERSION=${{ steps.prver.outputs.ver }} aztec-up
+
+      - name: Manually tag the aztec version as `latest`
+        run: |
+          docker tag aztecprotocol/aztec:${{ steps.prver.outputs.ver }} aztecprotocol/aztec:latest
 
       - name: Start sandbox (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
