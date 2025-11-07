@@ -24,29 +24,3 @@
   "include": ["src/**/*", "scripts/**/*.ts", "benchmarks/**/*.ts", "jest.setup.ts", "jest.teardown.ts", "target/**/*", "artifacts/**/*"],
   "exclude": ["node_modules"]
 }
-  
-// {
-//   "compilerOptions": {
-//     "rootDir": ".",
-//     "outDir": "dest",
-//     "tsBuildInfoFile": ".tsbuildinfo",
-//     "target": "es2020",
-//     "lib": ["esnext", "dom", "es2017.object"],
-//     "module": "NodeNext",
-//     "moduleResolution": "NodeNext",
-//     "strict": true,
-//     "declaration": true,
-//     "declarationMap": true,
-//     "allowSyntheticDefaultImports": true,
-//     "allowJs": true,
-//     "esModuleInterop": true,
-//     "downlevelIteration": true,
-//     "inlineSourceMap": true,
-//     "importHelpers": true,
-//     "resolveJsonModule": true,
-//     "composite": true,
-//     "skipLibCheck": true,
-//     "jsx": "react-jsx"
-//   },
-//   "include": ["src", "scripts/**/*", "src/**/*.json", "artifacts/**/*", "target/**/*"]
-// }
