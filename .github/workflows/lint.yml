@@ -17,7 +17,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install and cache yarn
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: 'yarn'
@@ -64,7 +64,7 @@ jobs:
         run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
           cache: 'yarn'
