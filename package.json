@@ -21,9 +21,9 @@
     "*.{js,ts}": "prettier --write -u"
   },
   "dependencies": {
-    "@aztec/accounts": "2.0.3",
-    "@aztec/aztec.js": "2.0.3",
-    "@aztec/noir-contracts.js": "2.0.3",
+    "@aztec/accounts": "2.1.2",
+    "@aztec/aztec.js": "2.1.2",
+    "@aztec/noir-contracts.js": "2.1.2",
     "@defi-wonderland/aztec-benchmark": "2.0.0",
     "@types/node": "22.5.1"
   },
