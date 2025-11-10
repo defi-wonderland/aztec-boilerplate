@@ -21,13 +21,13 @@
     "*.{js,ts}": "prettier --write -u"
   },
   "dependencies": {
-    "@aztec/accounts": "3.0.0-devnet.2",
-    "@aztec/aztec.js": "3.0.0-devnet.2",
-    "@aztec/entrypoints": "3.0.0-devnet.2",
-    "@aztec/noir-contracts.js": "3.0.0-devnet.2",
-    "@aztec/pxe": "3.0.0-devnet.2",
-    "@aztec/stdlib": "3.0.0-devnet.2",
-    "@aztec/test-wallet": "3.0.0-devnet.2",
+    "@aztec/accounts": "3.0.0-nightly.20251110",
+    "@aztec/aztec.js": "3.0.0-nightly.20251110",
+    "@aztec/entrypoints": "3.0.0-nightly.20251110",
+    "@aztec/noir-contracts.js": "3.0.0-nightly.20251110",
+    "@aztec/pxe": "3.0.0-nightly.20251110",
+    "@aztec/stdlib": "3.0.0-nightly.20251110",
+    "@aztec/test-wallet": "3.0.0-nightly.20250911",
     "@defi-wonderland/aztec-benchmark": "3.0.0-devnet.2",
     "@types/node": "22.5.1"
   },
