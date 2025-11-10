@@ -1,21 +1,23 @@
-import { type AccountWallet, type PXE, createPXEClient } from "@aztec/aztec.js";
-import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
-
-// Import types from benchmark package
+import { type Wallet } from "@aztec/aztec.js/wallet";
+import { AztecAddress } from "@aztec/aztec.js/addresses";
+import { createAztecNodeClient, waitForNode } from "@aztec/aztec.js/node";
+import { type ContractFunctionInteractionCallIntent } from "@aztec/aztec.js/authorization";
+import {
+  registerInitialSandboxAccountsInWallet,
+  TestWallet,
+} from "@aztec/test-wallet/server";
 import {
   Benchmark,
   type BenchmarkContext,
 } from "@defi-wonderland/aztec-benchmark";
-import { NamedBenchmarkedInteraction } from "@defi-wonderland/aztec-benchmark/dist/types.js";
 
 import { CounterContract } from "../src/artifacts/Counter.js";
-import { deployCounter } from "../src/ts/utils.js";
 
 // Extend the BenchmarkContext from the new package
 interface CounterBenchmarkContext extends BenchmarkContext {
-  pxe: PXE;
-  deployer: AccountWallet;
-  accounts: AccountWallet[];
+  wallet: Wallet;
+  deployer: AztecAddress;
+  accounts: AztecAddress[];
   counterContract: CounterContract;
 }
 
@@ -26,35 +28,38 @@ export default class CounterContractBenchmark extends Benchmark {
    * Creates PXE client, gets accounts, and deploys the contract.
    */
   async setup(): Promise<CounterBenchmarkContext> {
-    const { BASE_PXE_URL = "http://localhost" } = process.env;
-    const pxe = createPXEClient(`${BASE_PXE_URL}:8080`);
-    const accounts = await getInitialTestAccountsWallets(pxe);
-    const deployer = accounts[0]!;
-    const deployedCounterContract = await deployCounter(
-      deployer,
-      deployer.getAddress(),
-    );
-    const counterContract = await CounterContract.at(
-      deployedCounterContract.address,
-      deployer,
-    );
-    return { pxe, deployer, accounts, counterContract };
+    const { NODE_URL = "http://localhost:8080" } = process.env;
+    const aztecNode = createAztecNodeClient(NODE_URL);
+    await waitForNode(aztecNode);
+
+    const wallet: TestWallet = await TestWallet.create(aztecNode);
+    const accounts: AztecAddress[] =
+      await registerInitialSandboxAccountsInWallet(wallet);
+
+    const [deployer] = accounts;
+
+    const counterContract = await CounterContract.deploy(wallet, deployer)
+      .send({ from: deployer })
+      .deployed();
+
+    return { wallet, deployer, accounts, counterContract };
   }
 
   /**
    * Returns the list of CounterContract methods to be benchmarked.
    */
-  getMethods(context: CounterBenchmarkContext): NamedBenchmarkedInteraction[] {
-    const { counterContract, accounts } = context;
-    const [alice] = accounts;
+  getMethods(
+    context: CounterBenchmarkContext,
+  ): ContractFunctionInteractionCallIntent[] {
+    const { counterContract, wallet, deployer } = context;
 
-    const methods = [
+    const methods: ContractFunctionInteractionCallIntent[] = [
       {
-        interaction: counterContract.withWallet(alice).methods.increment(),
-        name: "increment",
+        caller: deployer,
+        action: counterContract.withWallet(wallet).methods.increment(),
       },
-    ] as NamedBenchmarkedInteraction[];
+    ];
 
-    return methods.filter(Boolean);
+    return methods;
   }
 }

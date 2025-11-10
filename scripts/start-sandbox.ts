@@ -1,6 +1,6 @@
 import { spawn, ChildProcess } from "child_process";
 import { EventEmitter } from "events";
-import { createPXEClient, waitForPXE, PXE } from "@aztec/aztec.js";
+import { createAztecNodeClient } from "@aztec/aztec.js/node";
 
 // Global reference for the active sandbox manager
 let activeSandboxManager: SandboxManager | null = null;
@@ -58,9 +58,13 @@ class SandboxManager extends EventEmitter {
   // Timer/interval tracking for centralized cleanup
   private timers: Record<string, NodeJS.Timeout> = {};
 
+  // Capture stderr for error reporting
+  private stderrBuffer: string[] = [];
+
   constructor(options: SandboxManagerOptions = {}) {
     super();
-    this.verbose = options.verbose ?? false;
+    // Enable verbose mode in CI environments by default
+    this.verbose = options.verbose ?? Boolean(process.env.CI);
 
     // Register this manager for signal handling
     activeSandboxManager = this;
@@ -122,6 +126,7 @@ class SandboxManager extends EventEmitter {
     // Reset instance state
     this.process = null;
     this.isReady = false;
+    this.stderrBuffer = [];
 
     // Only reset external flag if not preserving it
     if (!preserveExternalFlag) {
@@ -160,7 +165,11 @@ class SandboxManager extends EventEmitter {
    * Spawn the Aztec sandbox process
    */
   spawnSandboxProcess(): ChildProcess {
-    return spawn("aztec", ["start", "--sandbox"], {
+    // In devnet.2, an L1 RPC URL is required
+    // The sandbox will start its own Anvil instance on the default port
+    const l1RpcUrl = process.env.L1_RPC_URL || "http://127.0.0.1:8545";
+
+    return spawn("aztec", ["start", "--sandbox", "--l1-rpc-urls", l1RpcUrl], {
       stdio: "pipe",
     });
   }
@@ -205,6 +214,9 @@ class SandboxManager extends EventEmitter {
       process.stderr.on("data", (data: Buffer) => {
         const output = data.toString().trim();
         if (output) {
+          // Always capture stderr for error reporting
+          this.stderrBuffer.push(output);
+
           if (this.verbose) {
             console.log(`🚨 Sandbox error: ${output}`);
           }
@@ -244,15 +256,21 @@ class SandboxManager extends EventEmitter {
     // Handle process exit
     process.on("exit", (code: number | null, signal: NodeJS.Signals | null) => {
       if (!this.isReady) {
+        // Format stderr buffer for error message
+        const stderrOutput =
+          this.stderrBuffer.length > 0
+            ? `\n\nStderr output:\n${this.stderrBuffer.slice(-10).join("\n")}`
+            : "";
+
         if (code === 0) {
           this.handleError(
-            "Sandbox process exited unexpectedly",
+            `Sandbox process exited unexpectedly${stderrOutput}`,
             "process-exit",
             safeReject,
           );
         } else {
           this.handleError(
-            `Sandbox process exited with code ${code} and signal ${signal}`,
+            `Sandbox process exited with code ${code} and signal ${signal}${stderrOutput}`,
             "process-exit",
             safeReject,
           );
@@ -264,17 +282,42 @@ class SandboxManager extends EventEmitter {
   async checkSandboxConnectivity(): Promise<void> {
     console.time(`✅ Sandbox ready`);
 
-    const pxe: PXE = createPXEClient("http://localhost:8080");
+    const maxRetries = 60; // 60 retries
+    const retryDelayMs = 3000; // 3 seconds between retries
+    let lastError: Error | null = null;
 
-    // Use waitForPXE without timeout parameter - it handles retries internally
-    await waitForPXE(pxe);
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        // Try to connect to the Aztec node
+        const aztecNode = await createAztecNodeClient(
+          "http://localhost:8080",
+          {},
+        );
 
-    console.timeEnd(`✅ Sandbox ready`);
+        // Try to get node info to verify it's responsive
+        const nodeInfo = await aztecNode.getNodeInfo();
 
-    // Additional check to ensure PXE is fully ready
-    const nodeInfo = await pxe.getNodeInfo();
+        console.timeEnd(`✅ Sandbox ready`);
+        console.log(`🔧 Node version: ${nodeInfo.nodeVersion}`);
+        return; // Success!
+      } catch (error: any) {
+        lastError = error;
 
-    console.log(`🔧 Node version: ${nodeInfo.nodeVersion}`);
+        if (attempt < maxRetries) {
+          if (this.verbose) {
+            console.log(
+              `⏳ Sandbox not ready yet (attempt ${attempt}/${maxRetries}), retrying in ${retryDelayMs / 1000}s...`,
+            );
+          }
+          await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+        }
+      }
+    }
+
+    // If we get here, all retries failed
+    throw new Error(
+      `Failed to connect to sandbox after ${maxRetries} attempts: ${lastError?.message}`,
+    );
   }
 
   async start(): Promise<SandboxManager> {

@@ -1,18 +1,26 @@
 {
   "compilerOptions": {
+    "rootDir": ".",
     "target": "ES2020",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "lib": ["ES2020"],
+    "lib": ["esnext", "dom", "es2017.object"],
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "allowJs": true,
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "declaration": true,
+    "declarationMap": true,
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true,
+    "inlineSourceMap": true,
+    "importHelpers": true,
+    "composite": true,
+    "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "scripts/**/*.ts", "jest.setup.ts", "jest.teardown.ts"],
+  "include": ["src/**/*", "scripts/**/*.ts", "benchmarks/**/*.ts", "jest.setup.ts", "jest.teardown.ts", "target/**/*", "artifacts/**/*"],
   "exclude": ["node_modules"]
 }
-  

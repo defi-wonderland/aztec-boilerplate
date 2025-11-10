@@ -4,6 +4,15 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 env:
   BENCH_DIR: ./benchmarks
 
@@ -69,11 +78,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install and cache yarn
+      - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: '22'
-          cache: 'yarn'
+          node-version: '22.17.0'
 
       - name: Install Aztec CLI
         run: |
@@ -102,34 +110,21 @@ jobs:
         run: |
           VERSION=${{ steps.basever.outputs.ver }} aztec-up
 
+      - name: Manually tag the aztec version as `latest`
+        run: |
+          docker tag aztecprotocol/aztec:${{ steps.basever.outputs.ver }} aztecprotocol/aztec:latest
+
       - name: Start sandbox (BASE, background)
-        run: VERSION=${{ steps.basever.outputs.ver }} aztec start --sandbox &
+        run: aztec start --sandbox &
 
       - name: Start PXE node (BASE, background)
         run: |
           VERSION=${{ steps.basever.outputs.ver }} aztec start \
             --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
-      
-      - name: Cache node_modules (BASE)
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ steps.basever.outputs.ver }}-
 
       - name: Install deps (BASE)
-        run: yarn install --frozen-lockfile
-
-      - name: Cache Noir compilation artifacts (BASE)
-        id: cache-noir-base
-        uses: actions/cache@v4
-        with:
-          path: |
-            target/
-            src/artifacts/
-          key: ${{ runner.os }}-noir-${{ steps.basever.outputs.ver }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
+        run: yarn --frozen-lockfile
 
       - name: Compile contracts (BASE)
         run: yarn compile
@@ -144,7 +139,7 @@ jobs:
       # This is required to avoid the benchmark results being removed by the Checkout PR step
       - name: Store base benchmark results
         run: |
-          mkdir -p ../benchmarks_base && mv ${{ env.BENCH_DIR }}/* ../benchmarks_base/
+          mkdir -p ../benchmarks_base && mv ${{ env.BENCH_DIR }}/*.json ../benchmarks_base/
 
       # ──────────────────────────────────────────────────────────────
       # 2️⃣  BENCHMARK PR HEAD  (github.event.pull_request.head.sha)
@@ -186,11 +181,13 @@ jobs:
         run: |
           VERSION=${{ steps.prver.outputs.ver }} aztec-up
 
+      - name: Manually tag the aztec version as `latest`
+        run: |
+          docker tag aztecprotocol/aztec:${{ steps.prver.outputs.ver }} aztecprotocol/aztec:latest
+
       - name: Start sandbox (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
-        run: |
-          VERSION=${{ steps.prver.outputs.ver }} aztec start --sandbox &
-          sleep 60
+        run: aztec start --sandbox &
 
       - name: Start PXE node (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
@@ -199,28 +196,11 @@ jobs:
             --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
 
-      - name: Clean project from BASE stage
-        run: rm -rf node_modules yarn.lock
-
-      - name: Cache node_modules (PR)
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-${{ hashFiles('yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-${{ steps.prver.outputs.ver }}-
+      # - name: Clean project from BASE stage
+      #   run: rm -rf node_modules yarn.lock
 
       - name: Install deps (PR)
-        run: yarn install --frozen-lockfile
-
-      - name: Cache Noir compilation artifacts (PR)
-        id: cache-noir-pr
-        uses: actions/cache@v4
-        with:
-          path: |
-            target/
-            src/artifacts/
-          key: ${{ runner.os }}-noir-${{ steps.prver.outputs.ver }}-${{ hashFiles('src/nr/**/*', 'Nargo.toml') }}
+        run: yarn --frozen-lockfile
 
       - name: Compile contracts (PR)
         run: yarn compile

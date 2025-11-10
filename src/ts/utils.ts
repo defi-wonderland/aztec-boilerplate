@@ -1,26 +1,10 @@
-import {
-  waitForPXE,
-  createPXEClient,
-  AccountWallet,
-  Contract,
-  AztecAddress,
-} from "@aztec/aztec.js";
+import { Wallet } from "@aztec/aztec.js/wallet";
 import {
   CounterContract,
   CounterContractArtifact,
 } from "../artifacts/Counter.js";
-
-export const createPXE = async (id: number = 0) => {
-  const { BASE_PXE_URL = `http://localhost` } = process.env;
-  const url = `${BASE_PXE_URL}:${8080 + id}`;
-  const pxe = createPXEClient(url);
-  await waitForPXE(pxe);
-  return pxe;
-};
-
-export const setupSandbox = async () => {
-  return createPXE();
-};
+import { AztecAddress } from "@aztec/stdlib/aztec-address";
+import { Contract } from "@aztec/aztec.js/contracts";
 
 /**
  * Deploys the Counter contract.
@@ -29,18 +13,19 @@ export const setupSandbox = async () => {
  * @returns A deployed contract instance.
  */
 export async function deployCounter(
-  deployer: AccountWallet,
+  deployer: Wallet,
   owner: AztecAddress,
 ): Promise<CounterContract> {
-  const contract = await Contract.deploy(
+  const deployerAddress = (await deployer.getAccounts())[0]!.item;
+  const deployMethod = await Contract.deploy(
     deployer,
     CounterContractArtifact,
     [owner],
     "constructor", // not actually needed since it's the default constructor
-  )
-    .send({
-      from: deployer.getAddress(),
-    })
-    .deployed();
+  );
+  const tx = await deployMethod.send({
+    from: deployerAddress,
+  });
+  const contract = await tx.deployed();
   return contract as CounterContract;
 }
