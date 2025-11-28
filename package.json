@@ -13,7 +13,7 @@
     "test:js": "vitest run",
     "test:nr": "aztec test",
     "lint:prettier": "prettier '**/*.{js,ts}' --write",
-    "ccc": "yarn clean && yarn compile && yarn codegen -f",
+    "ccc": "yarn clean && yarn compile && yarn codegen",
     "benchmark": "aztec-benchmark --suffix _base",
     "prepare": "husky"
   },
