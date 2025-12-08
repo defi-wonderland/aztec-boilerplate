@@ -35,14 +35,14 @@
     "@commitlint/cli": "20.1.0",
     "@commitlint/config-conventional": "20.0.0",
     "@types/jest": "30.0.0",
-    "@types/mocha": "10.0.6",
+    "@types/mocha": "10.0.10",
     "@types/node": "22.5.1",
     "husky": "9.1.7",
-    "lint-staged": "16.2.3",
-    "prettier": "3.6.2",
+    "lint-staged": "16.2.7",
+    "prettier": "3.7.4",
     "tsx": "4.9.3",
     "typescript": "5.9.3",
-    "vitest": "3.2.4"
+    "vitest": "4.0.15"
   },
   "config": {
     "aztecVersion": "3.0.0-devnet.2"
