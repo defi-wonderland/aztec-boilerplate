@@ -1,15 +1,12 @@
 import { CounterContract } from "../artifacts/Counter.js";
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
-import { TestWallet } from "@aztec/test-wallet/server";
+import {
+  registerInitialLocalNetworkAccountsInWallet,
+  TestWallet,
+} from "@aztec/test-wallet/server";
 import { createAztecNodeClient } from "@aztec/aztec.js/node";
 import { deployCounter } from "./utils.js";
 import { AztecAddress } from "@aztec/stdlib/aztec-address";
-
-import {
-  INITIAL_TEST_SECRET_KEYS,
-  INITIAL_TEST_ACCOUNT_SALTS,
-  INITIAL_TEST_ENCRYPTION_KEYS,
-} from "@aztec/accounts/testing";
 
 describe("Counter Contract", () => {
   let wallet: TestWallet;
@@ -27,18 +24,8 @@ describe("Counter Contract", () => {
       {},
     );
 
-    // Register initial test accounts manually because of this:
-    // https://github.com/AztecProtocol/aztec-packages/blame/next/yarn-project/accounts/src/schnorr/lazy.ts#L21-L25
-    [alice] = await Promise.all(
-      INITIAL_TEST_SECRET_KEYS.map(async (secret, i) => {
-        const accountManager = await wallet.createSchnorrAccount(
-          secret,
-          INITIAL_TEST_ACCOUNT_SALTS[i],
-          INITIAL_TEST_ENCRYPTION_KEYS[i],
-        );
-        return accountManager.address;
-      }),
-    );
+    // Local network starts with predeployed funded accounts; register them in PXE for private execution.
+    [alice] = await registerInitialLocalNetworkAccountsInWallet(wallet);
   });
 
   beforeEach(async () => {

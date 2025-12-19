@@ -1,6 +1,10 @@
-import { spawn, ChildProcess } from "child_process";
+import { spawn, ChildProcess, execSync } from "child_process";
 import { EventEmitter } from "events";
 import { createAztecNodeClient } from "@aztec/aztec.js/node";
+import net from "node:net";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
 // Global reference for the active sandbox manager
 let activeSandboxManager: SandboxManager | null = null;
@@ -54,6 +58,8 @@ class SandboxManager extends EventEmitter {
   public forceKillTimeout = 5000;
   public maxRetries = 3;
   public verbose: boolean;
+  public port: number;
+  public url: string;
 
   // Timer/interval tracking for centralized cleanup
   private timers: Record<string, NodeJS.Timeout> = {};
@@ -65,10 +71,67 @@ class SandboxManager extends EventEmitter {
     super();
     // Enable verbose mode in CI environments by default
     this.verbose = options.verbose ?? Boolean(process.env.CI);
+    this.port = 8080;
+    this.url = "http://localhost:8080";
 
     // Register this manager for signal handling
     activeSandboxManager = this;
     setupSignalHandlers();
+  }
+
+  /**
+   * Returns true if a local TCP port is available for binding.
+   */
+  private async isPortAvailable(port: number): Promise<boolean> {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const server = net.createServer();
+        server.unref();
+        server.on("error", reject);
+        server.listen({ port, host: "::", ipv6Only: false }, () => {
+          server.close(() => resolve());
+        });
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private getExpectedAztecVersion(): string {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const packageJsonPath = join(__dirname, "..", "package.json");
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8")) as {
+      config?: { aztecVersion?: string };
+    };
+    const expected = packageJson.config?.aztecVersion;
+    if (!expected) {
+      throw new Error("No aztecVersion found in package.json config");
+    }
+    return expected;
+  }
+
+  private async tryConnectAndValidateRunningSandbox(): Promise<boolean> {
+    try {
+      const aztecNode = await createAztecNodeClient(this.url, {});
+      const nodeInfo = await aztecNode.getNodeInfo();
+      const expected = this.getExpectedAztecVersion();
+      if (nodeInfo.nodeVersion !== expected) {
+        throw new Error(
+          `Aztec sandbox already running but version mismatch.\n` +
+            `Expected: ${expected}\n` +
+            `Running:  ${nodeInfo.nodeVersion}`,
+        );
+      }
+
+      console.log(`🔧 Node version: ${nodeInfo.nodeVersion}`);
+      this.isExternalSandbox = true;
+      this.isReady = true;
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   /**
@@ -165,11 +228,23 @@ class SandboxManager extends EventEmitter {
    * Spawn the Aztec sandbox process
    */
   spawnSandboxProcess(): ChildProcess {
-    // In devnet.2, an L1 RPC URL is required
-    // The sandbox will start its own Anvil instance on the default port
-    const l1RpcUrl = process.env.L1_RPC_URL || "http://127.0.0.1:8545";
+    // Prefer `--sandbox` if supported by the installed Aztec CLI; otherwise fall back to `--local-network`.
+    // This keeps compatibility across Aztec CLI versions.
+    let modeFlag: "--sandbox" | "--local-network" = "--sandbox";
+    try {
+      const help = execSync("aztec start --help", {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+      if (!help.includes("--sandbox")) {
+        modeFlag = "--local-network";
+      }
+    } catch {
+      // If help fails for any reason, fall back to local-network since it's supported in current releases.
+      modeFlag = "--local-network";
+    }
 
-    return spawn("aztec", ["start", "--sandbox", "--l1-rpc-urls", l1RpcUrl], {
+    return spawn("aztec", ["start", modeFlag, "--port", String(this.port)], {
       stdio: "pipe",
     });
   }
@@ -221,12 +296,13 @@ class SandboxManager extends EventEmitter {
             console.log(`🚨 Sandbox error: ${output}`);
           }
 
-          // Check for port already in use
-          if (output.includes("port is already")) {
-            this.clearManagedTimer("startupTimeout"); // Clear startup timeout since we're switching to external
-            console.log(
-              "ℹ️ Port is already in use, checking if existing sandbox is responsive",
-            );
+          // If the process couldn't bind because something is already running, attach to it and validate version.
+          if (
+            output.includes("port is already") ||
+            output.includes("address already in use") ||
+            output.includes("EADDRINUSE")
+          ) {
+            this.clearManagedTimer("startupTimeout");
 
             // Clean up our failed spawn process since we'll use external sandbox
             if (this.process) {
@@ -234,16 +310,22 @@ class SandboxManager extends EventEmitter {
             }
             this.process = null;
 
-            this.checkSandboxConnectivity()
-              .then(() => {
-                this.isExternalSandbox = true; // Mark that we're using external sandbox
-                this.isReady = true;
-                console.log("✅ Connected to existing external sandbox");
-                safeResolve(this);
+            this.tryConnectAndValidateRunningSandbox()
+              .then((ok) => {
+                if (ok) {
+                  console.log("✅ Connected to existing sandbox");
+                  safeResolve(this);
+                } else {
+                  this.handleError(
+                    "Port is in use but sandbox is not responsive",
+                    "external-sandbox-check",
+                    safeReject,
+                  );
+                }
               })
-              .catch(() => {
+              .catch((err: any) => {
                 this.handleError(
-                  "Port 8080 is in use but sandbox is not responsive",
+                  err?.message ?? String(err),
                   "external-sandbox-check",
                   safeReject,
                 );
@@ -289,10 +371,7 @@ class SandboxManager extends EventEmitter {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         // Try to connect to the Aztec node
-        const aztecNode = await createAztecNodeClient(
-          "http://localhost:8080",
-          {},
-        );
+        const aztecNode = await createAztecNodeClient(this.url, {});
 
         // Try to get node info to verify it's responsive
         const nodeInfo = await aztecNode.getNodeInfo();
@@ -324,6 +403,11 @@ class SandboxManager extends EventEmitter {
     // Validate that we can start
     if (this.isReady || this.process) {
       throw new Error("Cannot start sandbox - already running or starting");
+    }
+
+    // If something is already running on the default URL, validate version and reuse it.
+    if (await this.tryConnectAndValidateRunningSandbox()) {
+      return this;
     }
 
     return new Promise((resolve, reject) => {
@@ -434,8 +518,7 @@ class SandboxManager extends EventEmitter {
   }
 
   cleanup(): void {
-    // Only kill process if we own it, not if using external sandbox
-    if (!this.isExternalSandbox && this.process) {
+    if (this.process) {
       this.process.kill("SIGTERM");
     }
 
