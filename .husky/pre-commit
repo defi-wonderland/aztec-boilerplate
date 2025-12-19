@@ -1,2 +1,2 @@
-aztec-nargo fmt
+aztec fmt
 yarn lint-staged
