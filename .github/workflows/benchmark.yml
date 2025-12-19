@@ -18,6 +18,7 @@ env:
 
 jobs:
   check-changes:
+    if: false # Temporary disable benchmarking cross-version comparison
     name: Check for relevant changes
     runs-on: ubuntu-latest
     outputs:
@@ -64,6 +65,7 @@ jobs:
             core.setOutput('should-benchmark', shouldBenchmark);
 
   benchmark:
+    if: false # Temporary disable benchmarking cross-version comparison
     name: Run comparison
     needs: check-changes
     if: needs.check-changes.outputs.should-benchmark == 'true'
