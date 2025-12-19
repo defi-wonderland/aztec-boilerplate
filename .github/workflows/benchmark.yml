@@ -24,7 +24,7 @@ jobs:
       should-benchmark: ${{ steps.changes.outputs.should-benchmark }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Check for relevant changes
         id: changes
@@ -74,7 +74,7 @@ jobs:
       # 0️⃣  SHARED TOOLING – Buildx + Aztec CLI skeleton
       # ──────────────────────────────────────────────────────────────
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -95,7 +95,7 @@ jobs:
       # 1️⃣  BENCHMARK BASE COMMIT
       # ──────────────────────────────────────────────────────────────
       - name: Checkout BASE branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.base.sha }}
 
@@ -148,7 +148,7 @@ jobs:
       # clean does not work correctly and is removing the benchmark results anyways
       # https://github.com/actions/checkout/issues/1201
       - name: Checkout PR branch
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           clean: false
