@@ -108,7 +108,7 @@ jobs:
 
       - name: Switch CLI to BASE version
         run: |
-          VERSION=${{ steps.basever.outputs.ver }} aztec-up
+          aztec-up ${{ steps.basever.outputs.ver }} 
 
       - name: Manually tag the aztec version as `latest`
         run: |

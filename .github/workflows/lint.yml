@@ -62,7 +62,7 @@ jobs:
       
       - name: Update aztec
         run: |
-          aztec-up VERSION=${{ steps.aztec-version.outputs.version }}
+          aztec-up ${{ steps.aztec-version.outputs.version }}
 
       - name: Update path
         run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
