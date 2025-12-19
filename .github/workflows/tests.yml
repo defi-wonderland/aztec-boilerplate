@@ -67,9 +67,6 @@ jobs:
         if: steps.cache-noir.outputs.cache-hit != 'true'
         run: yarn codegen -f
 
-      - name: Postprocess contracts
-        run: aztec-postprocess-contract
-
       - name: Run nr tests
         run: yarn test:nr
 
