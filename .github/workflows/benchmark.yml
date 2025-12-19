@@ -18,7 +18,6 @@ env:
 
 jobs:
   check-changes:
-    if: false # Temporary disable benchmarking cross-version comparison
     name: Check for relevant changes
     runs-on: ubuntu-latest
     outputs:
@@ -65,7 +64,6 @@ jobs:
             core.setOutput('should-benchmark', shouldBenchmark);
 
   benchmark:
-    if: false # Temporary disable benchmarking cross-version comparison
     name: Run comparison
     needs: check-changes
     if: needs.check-changes.outputs.should-benchmark == 'true'
@@ -116,8 +114,8 @@ jobs:
         run: |
           docker tag aztecprotocol/aztec:${{ steps.basever.outputs.ver }} aztecprotocol/aztec:latest
 
-      - name: Start sandbox (BASE, background)
-        run: aztec start --sandbox &
+      - name: Start local network (BASE, background)
+        run: aztec start --local-network &
 
       - name: Start PXE node (BASE, background)
         run: |
@@ -174,7 +172,7 @@ jobs:
       - name: Kill BASE services
         if: steps.prver.outputs.ver_diff == 'true'
         run: |
-          pkill -f "aztec.*--sandbox" || true                   
+          pkill -f "aztec.*--local-network" || true                   
           pkill -f "aztec.*--pxe.*8081" || true                   
           sleep 5      
 
@@ -187,9 +185,9 @@ jobs:
         run: |
           docker tag aztecprotocol/aztec:${{ steps.prver.outputs.ver }} aztecprotocol/aztec:latest
 
-      - name: Start sandbox (PR, background)
+      - name: Start local network (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
-        run: aztec start --sandbox &
+        run: aztec start --local-network &
 
       - name: Start PXE node (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
