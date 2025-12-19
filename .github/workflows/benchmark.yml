@@ -220,7 +220,7 @@ jobs:
 
       # SECURITY: Upload results for secure comment workflow
       - name: Upload benchmark results and metadata
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: benchmark-results
           path: |
@@ -232,7 +232,7 @@ jobs:
           echo "${{ github.event.number }}" > pr-number.txt
 
       - name: Upload PR metadata
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: pr-metadata
           path: pr-number.txt
