@@ -47,12 +47,12 @@ jobs:
           curl -s https://install.aztec.network > tmp.sh
           bash tmp.sh <<< yes "yes"
 
+      - name: Update path
+        run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
+
       - name: Update aztec
         run: |
           aztec-up ${{ steps.aztec-version.outputs.version }}
-
-      - name: Update path
-        run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
 
       - name: Cache Noir compilation artifacts
         id: cache-noir
