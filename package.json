@@ -8,7 +8,7 @@
   "scripts": {
     "clean": "rm -rf ./src/artifacts ./target codegenCache.json",
     "codegen": "aztec codegen target --outdir src/artifacts -f",
-    "compile": "aztec compile && aztec-postprocess-contract",
+    "compile": "aztec compile",
     "test": "yarn test:nr && yarn test:js",
     "test:js": "vitest run",
     "test:nr": "aztec test",
