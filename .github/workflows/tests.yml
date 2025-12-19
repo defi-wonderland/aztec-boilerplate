@@ -25,7 +25,7 @@ jobs:
           cache: 'yarn'
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
@@ -52,7 +52,7 @@ jobs:
 
       - name: Cache Noir compilation artifacts
         id: cache-noir
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             target/
