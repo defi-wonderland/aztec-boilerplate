@@ -1,6 +1,7 @@
 import { type Wallet } from "@aztec/aztec.js/wallet";
 import { AztecAddress } from "@aztec/aztec.js/addresses";
 import { createAztecNodeClient, waitForNode } from "@aztec/aztec.js/node";
+import { type ContractFunctionInteractionCallIntent } from "@aztec/aztec.js/authorization";
 import {
   registerInitialLocalNetworkAccountsInWallet,
   TestWallet,
@@ -46,15 +47,17 @@ export default class CounterContractBenchmark extends Benchmark {
   /**
    * Returns the list of CounterContract methods to be benchmarked.
    */
-  getMethods(context: CounterBenchmarkContext): any[] {
+  getMethods(
+    context: CounterBenchmarkContext,
+  ): ContractFunctionInteractionCallIntent[] {
     const { counterContract, wallet, deployer } = context;
 
-    const methods = [
+    const methods: ContractFunctionInteractionCallIntent[] = [
       {
         caller: deployer,
         action: counterContract.withWallet(wallet).methods.increment(),
       },
-    ] as any[];
+    ];
 
     return methods;
   }
