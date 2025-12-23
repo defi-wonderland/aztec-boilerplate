@@ -1186,16 +1186,16 @@
   resolved "https://registry.yarnpkg.com/@babel/helper-validator-identifier/-/helper-validator-identifier-7.28.5.tgz#010b6938fab7cb7df74aa2bbc06aa503b8fe5fb4"
   integrity sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q==
 
-"@commitlint/cli@20.1.0":
-  version "20.1.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-20.1.0.tgz#07365e2849d86f771e76ea0ceb96cd88bb945e03"
-  integrity sha512-pW5ujjrOovhq5RcYv5xCpb4GkZxkO2+GtOdBW2/qrr0Ll9tl3PX0aBBobGQl3mdZUbOBgwAexEQLeH6uxL0VYg==
+"@commitlint/cli@20.2.0":
+  version "20.2.0"
+  resolved "https://registry.yarnpkg.com/@commitlint/cli/-/cli-20.2.0.tgz#4164499d3848447aacd795d298c8a768fb13a80c"
+  integrity sha512-l37HkrPZ2DZy26rKiTUvdq/LZtlMcxz+PeLv9dzK9NzoFGuJdOQyYU7IEkEQj0pO++uYue89wzOpZ0hcTtoqUA==
   dependencies:
-    "@commitlint/format" "^20.0.0"
-    "@commitlint/lint" "^20.0.0"
-    "@commitlint/load" "^20.1.0"
-    "@commitlint/read" "^20.0.0"
-    "@commitlint/types" "^20.0.0"
+    "@commitlint/format" "^20.2.0"
+    "@commitlint/lint" "^20.2.0"
+    "@commitlint/load" "^20.2.0"
+    "@commitlint/read" "^20.2.0"
+    "@commitlint/types" "^20.2.0"
     tinyexec "^1.0.0"
     yargs "^17.0.0"
 
@@ -1232,7 +1232,7 @@
   resolved "https://registry.yarnpkg.com/@commitlint/execute-rule/-/execute-rule-20.0.0.tgz#013628e09179cf2d3c977e1cf37937b5cb869af8"
   integrity sha512-xyCoOShoPuPL44gVa+5EdZsBVao/pNzpQhkzq3RdtlFdKZtjWcLlUFQHSWBuhk5utKYykeJPSz2i8ABHQA+ZZw==
 
-"@commitlint/format@^20.0.0":
+"@commitlint/format@^20.2.0":
   version "20.2.0"
   resolved "https://registry.yarnpkg.com/@commitlint/format/-/format-20.2.0.tgz#0f54ee9617a2298c540de331bc8642ff70c331a1"
   integrity sha512-PhNoLNhxpfIBlW/i90uZ3yG3hwSSYx7n4d9Yc+2FAorAHS0D9btYRK4ZZXX+Gm3W5tDtu911ow/eWRfcRVgNWg==
@@ -1248,7 +1248,7 @@
     "@commitlint/types" "^20.2.0"
     semver "^7.6.0"
 
-"@commitlint/lint@^20.0.0":
+"@commitlint/lint@^20.2.0":
   version "20.2.0"
   resolved "https://registry.yarnpkg.com/@commitlint/lint/-/lint-20.2.0.tgz#535f63f419cef7244b0a2907b5bf27ecb1f55bda"
   integrity sha512-cQEEB+jlmyQbyiji/kmh8pUJSDeUmPiWq23kFV0EtW3eM+uAaMLMuoTMajbrtWYWQpPzOMDjYltQ8jxHeHgITg==
@@ -1258,7 +1258,7 @@
     "@commitlint/rules" "^20.2.0"
     "@commitlint/types" "^20.2.0"
 
-"@commitlint/load@^20.1.0":
+"@commitlint/load@^20.2.0":
   version "20.2.0"
   resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-20.2.0.tgz#0864d7296c9dc7f0759c811e7e497e2df03292db"
   integrity sha512-iAK2GaBM8sPFTSwtagI67HrLKHIUxQc2BgpgNc/UMNme6LfmtHpIxQoN1TbP+X1iz58jq32HL1GbrFTCzcMi6g==
@@ -1288,7 +1288,7 @@
     conventional-changelog-angular "^7.0.0"
     conventional-commits-parser "^5.0.0"
 
-"@commitlint/read@^20.0.0":
+"@commitlint/read@^20.2.0":
   version "20.2.0"
   resolved "https://registry.yarnpkg.com/@commitlint/read/-/read-20.2.0.tgz#6637b53fc5e5b19ecbf65c61ff77732a87d11016"
   integrity sha512-+SjF9mxm5JCbe+8grOpXCXMMRzAnE0WWijhhtasdrpJoAFJYd5UgRTj/oCq5W3HJTwbvTOsijEJ0SUGImECD7Q==
