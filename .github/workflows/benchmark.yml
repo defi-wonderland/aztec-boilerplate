@@ -18,7 +18,6 @@ env:
 
 jobs:
   check-changes:
-    if: false # Temporary disable benchmarking cross-version comparison
     name: Check for relevant changes
     runs-on: ubuntu-latest
     outputs:
