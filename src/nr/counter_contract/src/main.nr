@@ -18,11 +18,6 @@ pub contract Counter {
         counter: PublicMutable<u128, Context>,
     }
 
-    #[external("private")]
-    fn method_added_just_to_trigger_benchmark() {
-        // This method is added just to trigger the benchmark
-    }
-
     /// @dev Initialize the contract
     /// @param owner The address of the owner
     #[external("public")]
