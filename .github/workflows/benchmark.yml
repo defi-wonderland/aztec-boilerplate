@@ -18,6 +18,7 @@ env:
 
 jobs:
   check-changes:
+    if: false # Temporary disable benchmarking cross-version comparison
     name: Check for relevant changes
     runs-on: ubuntu-latest
     outputs:
@@ -64,6 +65,7 @@ jobs:
             core.setOutput('should-benchmark', shouldBenchmark);
 
   benchmark:
+    if: false # Temporary disable benchmarking cross-version comparison
     name: Run comparison
     needs: check-changes
     if: needs.check-changes.outputs.should-benchmark == 'true'
@@ -108,7 +110,7 @@ jobs:
 
       - name: Switch CLI to BASE version
         run: |
-          VERSION=${{ steps.basever.outputs.ver }} aztec-up
+          aztec-up ${{ steps.basever.outputs.ver }} 
 
       - name: Manually tag the aztec version as `latest`
         run: |

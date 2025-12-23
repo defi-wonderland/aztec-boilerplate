@@ -43,7 +43,7 @@ yarn ccc
 
 This runs:
 - `yarn clean` - Removes all build artifacts
-- `yarn compile` - Compiles Noir contracts using aztec-nargo
+- `yarn compile` - Compiles Noir contracts using aztec
 - `yarn codegen` - Generates TypeScript bindings from compiled contracts
 
 ## Running tests

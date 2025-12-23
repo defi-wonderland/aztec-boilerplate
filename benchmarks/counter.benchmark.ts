@@ -3,7 +3,7 @@ import { AztecAddress } from "@aztec/aztec.js/addresses";
 import { createAztecNodeClient, waitForNode } from "@aztec/aztec.js/node";
 import { type ContractFunctionInteractionCallIntent } from "@aztec/aztec.js/authorization";
 import {
-  registerInitialSandboxAccountsInWallet,
+  registerInitialLocalNetworkAccountsInWallet,
   TestWallet,
 } from "@aztec/test-wallet/server";
 import {
@@ -28,13 +28,12 @@ export default class CounterContractBenchmark extends Benchmark {
    * Creates PXE client, gets accounts, and deploys the contract.
    */
   async setup(): Promise<CounterBenchmarkContext> {
-    const { NODE_URL = "http://localhost:8080" } = process.env;
-    const aztecNode = createAztecNodeClient(NODE_URL);
+    const aztecNode = createAztecNodeClient("http://localhost:8080");
     await waitForNode(aztecNode);
 
     const wallet: TestWallet = await TestWallet.create(aztecNode);
     const accounts: AztecAddress[] =
-      await registerInitialSandboxAccountsInWallet(wallet);
+      await registerInitialLocalNetworkAccountsInWallet(wallet);
 
     const [deployer] = accounts;
 
