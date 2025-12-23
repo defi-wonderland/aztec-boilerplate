@@ -5,7 +5,7 @@ pub mod test;
 pub contract Counter {
     // aztec library imports
     use aztec::{
-        macros::{functions::{external, initializer, internal, view}, storage::storage},
+        macros::{functions::{external, initializer, only_self, view}, storage::storage},
         protocol_types::address::AztecAddress,
         state_vars::{PublicImmutable, PublicMutable},
     };
@@ -23,20 +23,20 @@ pub contract Counter {
     #[external("public")]
     #[initializer]
     fn constructor(owner: AztecAddress) {
-        storage.owner.initialize(owner);
+        self.storage.owner.initialize(owner);
     }
 
     /// @dev Retrieves the owner of the contract
     /// @return The owner of the contract
     #[external("public")]
     fn get_owner() -> AztecAddress {
-        storage.owner.read()
+        self.storage.owner.read()
     }
 
     /// @dev Increments the counter
     #[external("private")]
     fn increment() {
-        Counter::at(context.this_address()).increment_internal().enqueue(&mut context);
+        self.enqueue_self.increment_internal();
     }
 
     /// @dev Retrieves the counter value
@@ -44,14 +44,14 @@ pub contract Counter {
     #[external("public")]
     #[view]
     fn get_counter() -> u128 {
-        storage.counter.read()
+        self.storage.counter.read()
     }
 
     /// @dev Increments the counter
     #[external("public")]
-    #[internal]
+    #[only_self]
     fn increment_internal() {
-        let current_value = storage.counter.read();
-        storage.counter.write(current_value + 1);
+        let current_value = self.storage.counter.read();
+        self.storage.counter.write(current_value + 1);
     }
 }
