@@ -1,8 +1,7 @@
-name: Aztec Benchmark
+name: Aztec Benchmark Diff
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -17,73 +16,27 @@ env:
   BENCH_DIR: ./benchmarks
 
 jobs:
-  check-changes:
-    if: false # Temporary disable benchmarking cross-version comparison
-    name: Check for relevant changes
-    runs-on: ubuntu-latest
-    outputs:
-      should-benchmark: ${{ steps.changes.outputs.should-benchmark }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Check for relevant changes
-        id: changes
-        uses: actions/github-script@v8
-        with:
-          script: |
-            console.log('Checking for changes that would affect benchmarks...');
-            
-            const { data: files } = await github.rest.pulls.listFiles({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-            });
-            
-            console.log('Changed files:');
-            files.forEach(file => console.log(`- ${file.filename}`));
-            
-            // Check for Noir contracts, config, or benchmark changes
-            const relevantPatterns = /^(src\/nr\/|Nargo\.toml|benchmarks\/)/;
-            const hasRelevantChanges = files.some(file => relevantPatterns.test(file.filename));
-            
-            // Check for AZTEC_VERSION change in package.json
-            const hasAztecVersionChange = files.some(file => 
-              file.filename === 'package.json' && file.patch?.includes('aztecVersion')
-            );
-            
-            const shouldBenchmark = hasRelevantChanges || hasAztecVersionChange;
-            
-            if (hasRelevantChanges) {
-              console.log('📝 Noir contracts, config, or benchmark files changed');
-            } else if (hasAztecVersionChange) {
-              console.log('🔄 AZTEC_VERSION changed in package.json');
-            } else {
-              console.log('⏭️ No benchmark-relevant changes detected, skipping benchmarks');
-            }
-            
-            core.setOutput('should-benchmark', shouldBenchmark);
-
   benchmark:
-    if: false # Temporary disable benchmarking cross-version comparison
-    name: Run comparison
-    needs: check-changes
-    if: needs.check-changes.outputs.should-benchmark == 'true'
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest-m]
+        threads: [12]
+
+    runs-on: 
+      labels: ${{ matrix.os }}
+    timeout-minutes: 60
 
     steps:
       # ──────────────────────────────────────────────────────────────
       # 0️⃣  SHARED TOOLING – Buildx + Aztec CLI skeleton
       # ──────────────────────────────────────────────────────────────
-      - name: Checkout repository
+      - name: Checkout repo (full history)
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22.17.0'
+      - name: Set up Docker Buildx (Aztec local network needs BuildKit)
+        uses: docker/setup-buildx-action@v2
 
       - name: Install Aztec CLI
         run: |
@@ -101,6 +54,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
 
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22.17.0"
+
       - name: Detect Aztec version (BASE)
         id: basever
         run: |
@@ -110,20 +67,21 @@ jobs:
 
       - name: Switch CLI to BASE version
         run: |
-          aztec-up ${{ steps.basever.outputs.ver }} 
+          VERSION=${{ steps.basever.outputs.ver }} aztec-up
 
-      - name: Manually tag the aztec version as `latest`
-        run: |
-          docker tag aztecprotocol/aztec:${{ steps.basever.outputs.ver }} aztecprotocol/aztec:latest
-
-      - name: Start sandbox (BASE, background)
-        run: aztec start --sandbox &
+      - name: Start local network (BASE, background)
+        run: aztec start --local-network &
 
       - name: Start PXE node (BASE, background)
         run: |
-          VERSION=${{ steps.basever.outputs.ver }} aztec start \
-            --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
+          VERSION=${{ steps.basever.outputs.ver }} aztec \
+            start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
+
+      # This is a temporary hack to fix a problem with v3 releases.
+      - name: Manually tag the aztec version as `latest`
+        run: |
+          docker tag aztecprotocol/aztec:${{ steps.basever.outputs.ver }} aztecprotocol/aztec:latest
 
       - name: Install deps (BASE)
         run: yarn --frozen-lockfile
@@ -174,7 +132,7 @@ jobs:
       - name: Kill BASE services
         if: steps.prver.outputs.ver_diff == 'true'
         run: |
-          pkill -f "aztec.*--sandbox" || true                   
+          pkill -f "aztec.*--local-network" || true                   
           pkill -f "aztec.*--pxe.*8081" || true                   
           sleep 5      
 
@@ -183,23 +141,21 @@ jobs:
         run: |
           VERSION=${{ steps.prver.outputs.ver }} aztec-up
 
-      - name: Manually tag the aztec version as `latest`
-        run: |
-          docker tag aztecprotocol/aztec:${{ steps.prver.outputs.ver }} aztecprotocol/aztec:latest
-
-      - name: Start sandbox (PR, background)
+      - name: Start local network (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
-        run: aztec start --sandbox &
+        run: aztec start --local-network &
 
       - name: Start PXE node (PR, background)
         if: steps.prver.outputs.ver_diff == 'true'
         run: |
-          VERSION=${{ steps.prver.outputs.ver }} aztec start \
-            --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
+          VERSION=${{ steps.prver.outputs.ver }} aztec \
+            start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
             --pxe.proverEnabled false &
 
-      # - name: Clean project from BASE stage
-      #   run: rm -rf node_modules yarn.lock
+      # This is a temporary hack to fix a problem with v3 releases.
+      - name: Manually tag the aztec version as `latest`
+        run: |
+          docker tag aztecprotocol/aztec:${{ steps.prver.outputs.ver }} aztecprotocol/aztec:latest
 
       - name: Install deps (PR)
         run: yarn --frozen-lockfile
@@ -211,31 +167,16 @@ jobs:
         run: yarn codegen
 
       # ──────────────────────────────────────────────────────────────
-      # 3️⃣  DIFF &  UPLOAD ARTIFACTS
+      # 3️⃣  DIFF &  COMMENT
       # ──────────────────────────────────────────────────────────────
-
-      - name: Generate benchmark comparison
+      - name: Generate Markdown diff
         uses: defi-wonderland/aztec-benchmark/action@main
         with:
           base_suffix: '_base'
           current_suffix: '_pr'
 
-      # SECURITY: Upload results for secure comment workflow
-      - name: Upload benchmark results and metadata
-        uses: actions/upload-artifact@v6
+      - name: Comment diff
+        uses: peter-evans/create-or-update-comment@v5
         with:
-          name: benchmark-results
-          path: |
-            benchmark-comparison.md
-          retention-days: 1
-
-      - name: Save PR number for comment workflow
-        run: |
-          echo "${{ github.event.number }}" > pr-number.txt
-
-      - name: Upload PR metadata
-        uses: actions/upload-artifact@v6
-        with:
-          name: pr-metadata
-          path: pr-number.txt
-          retention-days: 1
+          issue-number: ${{ github.event.pull_request.number }}
+          body-file: benchmark-comparison.md
