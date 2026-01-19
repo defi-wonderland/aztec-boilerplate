@@ -30,7 +30,7 @@ pub contract ConstantContract {
         signing_public_key: SinglePrivateImmutable<PublicKeyNote, Context>,
     }
 
-    #[derive(Serialize, Deserialize)]
+    #[derive(Serialize, Eq, Deserialize)]
     pub struct Constants {
         signing_public_key: PublicKeyNote,
     }
@@ -90,5 +90,14 @@ pub contract ConstantContract {
     fn fetch_from_constants() {
         let constants = Constants::init(self.address);
         let public_key = constants.signing_public_key;
+    }
+
+    #[external("private")]
+    #[noinitcheck]
+    fn assert_fetched_values_are_correct(x: Field, y: Field) {
+        let constants = Constants::init(self.address);
+        let fetched_public_key = constants.signing_public_key;
+        let actual_public_key = PublicKeyNote { x: x, y: y };
+        assert_eq(actual_public_key, fetched_public_key);
     }
 }

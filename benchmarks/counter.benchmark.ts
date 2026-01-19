@@ -185,6 +185,16 @@ export default class CounterContractBenchmark extends Benchmark {
           .methods.fetch_from_constants()
           .with({ capsules: [capsule] }),
       },
+      {
+        caller: deployer,
+        action: nonInitializedContract
+          .withWallet(wallet)
+          .methods.assert_fetched_values_are_correct(
+            constantsData[0],
+            constantsData[1],
+          )
+          .with({ capsules: [capsule] }),
+      },
     ];
 
     return methods;
