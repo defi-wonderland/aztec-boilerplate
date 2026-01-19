@@ -1,57 +1,94 @@
-use aztec::macros::aztec;
-pub mod test;
+mod public_key_note;
+
+use dep::aztec::macros::aztec;
 
 #[aztec]
-pub contract Counter {
+pub contract ConstantContract {
     // aztec library imports
-    use aztec::{
-        macros::{functions::{external, initializer, only_self, view}, storage::storage},
-        protocol_types::address::AztecAddress,
-        state_vars::{PublicImmutable, PublicMutable},
+    use dep::aztec::{
+        macros::{functions::{external, initializer, noinitcheck}, storage::storage},
+        messages::message_delivery::MessageDelivery,
+        oracle::{
+            capsules,
+            get_contract_instance::get_contract_instance,
+            notes::{get_sender_for_tags, set_sender_for_tags},
+        },
+        protocol_types::{
+            address::AztecAddress,
+            hash::poseidon2_hash,
+            traits::{Deserialize, Serialize},
+        },
+        state_vars::SinglePrivateImmutable,
     };
+
+    use crate::public_key_note::PublicKeyNote;
 
     // @param owner The address of the owner
     // @param counter A numerical value
     #[storage]
     struct Storage<Context> {
-        owner: PublicImmutable<AztecAddress, Context>,
-        counter: PublicMutable<u128, Context>,
+        signing_public_key: SinglePrivateImmutable<PublicKeyNote, Context>,
     }
 
-    /// @dev Initialize the contract
-    /// @param owner The address of the owner
-    #[external("public")]
-    #[initializer]
-    fn constructor(owner: AztecAddress) {
-        self.storage.owner.initialize(owner);
+    #[derive(Serialize, Deserialize)]
+    pub struct Constants {
+        signing_public_key: PublicKeyNote,
     }
 
-    /// @dev Retrieves the owner of the contract
-    /// @return The owner of the contract
-    #[external("public")]
-    fn get_owner() -> AztecAddress {
-        self.storage.owner.read()
+    pub global CONSTANTS_SLOT: Field = 0x31415926535;
+
+    impl Constants {
+        fn init(address: AztecAddress) -> Constants {
+            // Safety: this is checked against the committed value in the initialization hash
+            let constants: Constants = unsafe { capsules::load(address, CONSTANTS_SLOT).unwrap() };
+
+            let instance = get_contract_instance(address);
+            let serialized_constants = constants.serialize();
+            let constants_commitment = poseidon2_hash(serialized_constants);
+
+            assert_eq(constants_commitment, instance.initialization_hash);
+
+            constants
+        }
     }
 
-    /// @dev Increments the counter
+    // Constructs the contract
     #[external("private")]
-    fn increment() {
-        self.enqueue_self.increment_internal();
+    #[initializer]
+    fn constructor(signing_pub_key_x: Field, signing_pub_key_y: Field) {
+        let pub_key_note = PublicKeyNote { x: signing_pub_key_x, y: signing_pub_key_y };
+
+        // Safety: The sender for tags is only used to compute unconstrained shared secrets for emitting logs.
+        // Since this value is only used for unconstrained tagging and not for any constrained logic,
+        // it is safe to load from an unconstrained context.
+        let original_sender =
+            unsafe { get_sender_for_tags().unwrap_or(self.context.msg_sender().unwrap()) };
+
+        // We set the sender for tags to msg.sender to ensure tags are associated with the actual caller.
+        // Safety: Comment from above applies here as well.
+        unsafe { set_sender_for_tags(self.context.msg_sender().unwrap()) };
+
+        self.storage.signing_public_key.initialize(pub_key_note).deliver(
+            MessageDelivery.CONSTRAINED_ONCHAIN,
+        );
+
+        // Safety: Comment from above applies here as well.
+        unsafe { set_sender_for_tags(original_sender) };
     }
 
-    /// @dev Retrieves the counter value
-    /// @return The current counter value
-    #[external("public")]
-    #[view]
-    fn get_counter() -> u128 {
-        self.storage.counter.read()
+    #[external("private")]
+    fn do_nothing() {}
+
+    #[external("private")]
+    fn fetch_from_storage() {
+        let storage = Storage::init(self.context);
+        let public_key = storage.signing_public_key.get_note();
     }
 
-    /// @dev Increments the counter
-    #[external("public")]
-    #[only_self]
-    fn increment_internal() {
-        let current_value = self.storage.counter.read();
-        self.storage.counter.write(current_value + 1);
+    #[external("private")]
+    #[noinitcheck]
+    fn fetch_from_constants() {
+        let constants = Constants::init(self.address);
+        let public_key = constants.signing_public_key;
     }
 }
