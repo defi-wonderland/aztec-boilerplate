@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Docker Buildx (Aztec local network needs BuildKit)
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Install Aztec CLI
         run: |
