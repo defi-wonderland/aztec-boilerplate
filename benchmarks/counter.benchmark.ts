@@ -61,4 +61,8 @@ export default class CounterContractBenchmark extends Benchmark {
 
     return methods;
   }
+
+  async teardown(context: BenchmarkContext): Promise<void> {
+    process.exit(0);
+  }
 }
