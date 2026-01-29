@@ -45,31 +45,9 @@ runs:
         name: benchmark-baseline-${{ steps.encode-base.outputs.base-ref-encoded }}
         path: ${{ inputs.bench-dir }}
         if_no_artifact_found: warn
-      continue-on-error: true
-
-    - name: Handle missing baseline
-      shell: bash
-      run: |
-        set +e  # Disable exit-on-error for this check
-        # Check if any baseline files exist using array (safer than ls/wc/pipe)
-        shopt -s nullglob
-        baseline_files=(${{ inputs.bench-dir }}/*_latest.benchmark.json)
-
-        if [ ${#baseline_files[@]} -eq 0 ]; then
-          echo "⚠️ No baseline found for branch: ${{ inputs.base-ref }}"
-          echo "This is expected for first benchmark run or if baseline expired"
-          echo "All benchmarks will be reported as new"
-          echo "BASELINE_MISSING=true" >> $GITHUB_OUTPUT
-        else
-          echo "✓ Baseline benchmarks loaded successfully"
-          ls -lh ${{ inputs.bench-dir }}/*_latest.benchmark.json
-          echo "BASELINE_MISSING=false" >> $GITHUB_OUTPUT
-        fi
-        set -e  # Re-enable exit-on-error
-      id: check-baseline
 
     - name: Create baseline notice if missing
-      if: steps.check-baseline.outputs.BASELINE_MISSING == 'true'
+      if: steps.download-baseline.outputs.found_artifact != 'true'
       shell: bash
       run: |
         cat > benchmark-comparison.md <<'EOF'
