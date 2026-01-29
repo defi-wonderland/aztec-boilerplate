@@ -7,9 +7,9 @@ on:
       - dev
       - main
 
-  # Weekly refresh to prevent 90-day expiration
+  # Monthly refresh to prevent 90-day expiration
   schedule:
-    - cron: '0 0 * * 0' # Every Sunday at midnight UTC
+    - cron: '0 0 1 * *' # First day of every month at midnight UTC
 
   # Manual trigger option
   workflow_dispatch:
