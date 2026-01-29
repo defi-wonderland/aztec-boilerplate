@@ -68,6 +68,18 @@ yarn test              # Run tests against existing sandbox
 
 The sandbox runs on `http://localhost:8080` by default.
 
+## Artifact registry (devnet.aztec-registry.xyz)
+
+This boilerplate can optionally upload your compiled contract artifact JSONs to the Aztec **artifact registry** during deployment.
+
+- **Registry URL**: set `AZTEC_ARTIFACT_REGISTRY_URL` (defaults to `https://devnet.aztec-registry.xyz/`)
+- **Enable upload**: set `AZTEC_ARTIFACT_REGISTRY_UPLOAD=1`
+- **Fail deploy on upload errors** (optional): set `AZTEC_ARTIFACT_REGISTRY_STRICT=1`
+
+### Deploy the Counter contract
+
+You can deploy contracts programmatically using the `deployCounter` utility function from `src/ts/utils.ts`. The deployment automatically uploads artifacts to the registry if `AZTEC_ARTIFACT_REGISTRY_UPLOAD=1` is set. See `src/ts/counter.test.ts` for an example of how to use it.
+
 ### All tests
 Run both Noir contract tests and TypeScript integration tests:
 

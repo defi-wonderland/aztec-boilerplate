@@ -5,6 +5,7 @@ import {
 } from "../artifacts/Counter.js";
 import { AztecAddress } from "@aztec/stdlib/aztec-address";
 import { Contract } from "@aztec/aztec.js/contracts";
+import { maybeUploadArtifactToRegistry } from "./artifactRegistry.js";
 
 /**
  * Deploys the Counter contract.
@@ -27,5 +28,9 @@ export async function deployCounter(
     from: deployerAddress,
   });
   const contract = await tx.deployed();
+  await maybeUploadArtifactToRegistry({
+    artifact: CounterContractArtifact,
+    filename: "counter_contract-Counter.json",
+  });
   return contract as CounterContract;
 }
