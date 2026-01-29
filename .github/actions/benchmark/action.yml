@@ -18,7 +18,7 @@ runs:
   steps:
     - name: Download baseline artifact
       id: download-baseline
-      uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v6
+      uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
       with:
         workflow: update-baseline.yml
         branch: ${{ inputs.base-ref }}
@@ -30,16 +30,40 @@ runs:
     - name: Handle missing baseline
       shell: bash
       run: |
-        # Check if any baseline files exist
-        baseline_count=$(ls -1 ${{ inputs.bench-dir }}/*_latest.benchmark.json 2>/dev/null | wc -l)
-        if [ "$baseline_count" -eq 0 ]; then
-          echo "⚠️ No baseline found for ${{ inputs.base-ref }}"
+        set +e  # Disable exit-on-error for this check
+        # Check if any baseline files exist using array (safer than ls/wc/pipe)
+        shopt -s nullglob
+        baseline_files=(${{ inputs.bench-dir }}/*_latest.benchmark.json)
+
+        if [ ${#baseline_files[@]} -eq 0 ]; then
+          echo "⚠️ No baseline found for branch: ${{ inputs.base-ref }}"
           echo "This is expected for first benchmark run or if baseline expired"
           echo "All benchmarks will be reported as new"
+          echo "BASELINE_MISSING=true" >> $GITHUB_OUTPUT
         else
           echo "✓ Baseline benchmarks loaded successfully"
           ls -lh ${{ inputs.bench-dir }}/*_latest.benchmark.json
+          echo "BASELINE_MISSING=false" >> $GITHUB_OUTPUT
         fi
+        set -e  # Re-enable exit-on-error
+      id: check-baseline
+
+    - name: Create baseline notice if missing
+      if: steps.check-baseline.outputs.BASELINE_MISSING == 'true'
+      shell: bash
+      run: |
+        cat > benchmark-comparison.md <<'EOF'
+        ## ⚠️ Benchmark Results (No Baseline)
+
+        This is the first benchmark run for the `${{ inputs.base-ref }}` branch, or the baseline has expired.
+
+        **What this means:**
+        - All benchmark results below are from this PR only
+        - No comparison available until baseline is established
+        - After this PR merges, future PRs will compare against these results
+
+        **Current Benchmark Results:**
+        EOF
 
     - name: Generate Markdown diff
       uses: defi-wonderland/aztec-benchmark/action@main
