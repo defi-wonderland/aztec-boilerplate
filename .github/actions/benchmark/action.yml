@@ -28,23 +28,19 @@ runs:
         encoded=$(echo "${{ inputs.base-ref }}" | sed 's/\//-/g')
         echo "base-ref-encoded=${encoded}" >> $GITHUB_OUTPUT
 
-    - name: Try downloading from PR baseline first
-      id: download-pr-baseline
-      uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
-      with:
-        workflow: pr-checks.yml
-        branch: ${{ inputs.base-ref }}
-        name: benchmark-baseline-${{ steps.encode-base.outputs.base-ref-encoded }}
-        path: ${{ inputs.bench-dir }}
-        if_no_artifact_found: warn
-      continue-on-error: true
+        # Determine which workflow created the baseline
+        # dev/main baselines are from update-baseline.yml, others from pr-checks.yml
+        if [[ "${{ inputs.base-ref }}" == "dev" || "${{ inputs.base-ref }}" == "main" ]]; then
+          echo "workflow=update-baseline.yml" >> $GITHUB_OUTPUT
+        else
+          echo "workflow=pr-checks.yml" >> $GITHUB_OUTPUT
+        fi
 
-    - name: Fallback to update-baseline workflow
-      if: steps.download-pr-baseline.outcome == 'failure'
-      id: download-update-baseline
+    - name: Download baseline artifact
+      id: download-baseline
       uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
       with:
-        workflow: update-baseline.yml
+        workflow: ${{ steps.encode-base.outputs.workflow }}
         branch: ${{ inputs.base-ref }}
         name: benchmark-baseline-${{ steps.encode-base.outputs.base-ref-encoded }}
         path: ${{ inputs.bench-dir }}
