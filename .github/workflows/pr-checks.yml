@@ -8,7 +8,6 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
   pull-requests: write
   issues: write
 
@@ -88,52 +87,3 @@ jobs:
         uses: ./.github/actions/noir-tests
         with:
           threads: '12'
-
-  # ══════════════════════════════════════════════════════════════════════════════
-  # COMMIT BENCHMARK RESULTS
-  # Runs only after all other jobs succeed
-  # ══════════════════════════════════════════════════════════════════════════════
-  commit-benchmarks:
-    name: Commit Benchmarks
-    needs: [benchmark, js-tests, noir-tests]
-    if: success() && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout PR branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 0
-
-      - name: Clean old benchmark files
-        run: rm -f ${{ env.BENCH_DIR }}/*_latest.benchmark.json
-
-      - name: Download benchmark results
-        uses: actions/download-artifact@v4
-        with:
-          name: benchmark-results-pr-${{ github.event.pull_request.number }}
-          path: ${{ env.BENCH_DIR }}
-
-      - name: Commit updated benchmark results
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # Add new/modified benchmark files
-          git add --force ${{ env.BENCH_DIR }}/*_latest.benchmark.json 2>/dev/null || true
-          
-          # Stage deletions (files that were tracked but no longer exist)
-          for file in $(git ls-files "${{ env.BENCH_DIR }}" | grep '_latest\.benchmark\.json$'); do
-            if [ ! -f "$file" ]; then
-              echo "Staging deletion of $file"
-              git rm --cached "$file"
-            fi
-          done
-          
-          # Check if there are changes to commit
-          if git diff --staged --quiet; then
-            echo "No changes to benchmark files"
-          else
-            git commit -m "chore: update benchmark results"
-            git push origin HEAD:${{ github.event.pull_request.head.ref }}
-          fi

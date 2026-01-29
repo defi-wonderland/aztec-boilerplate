@@ -16,25 +16,29 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Fetch base branch benchmark results
+    - name: Download baseline artifact
+      id: download-baseline
+      uses: dawidd6/action-download-artifact@bf251b5aa9c2f7eeb574a96ee720e24f801b7c11 # v6
+      with:
+        workflow: update-baseline.yml
+        branch: ${{ inputs.base-ref }}
+        name: benchmark-baseline-${{ inputs.base-ref }}
+        path: ${{ inputs.bench-dir }}
+        if_no_artifact_found: warn
+      continue-on-error: true
+
+    - name: Handle missing baseline
       shell: bash
       run: |
-        echo "Fetching benchmark results from base branch: ${{ inputs.base-ref }}"
-        
-        # Clean up any existing _latest.benchmark.json files
-        rm -f ${{ inputs.bench-dir }}/*_latest.benchmark.json
-        
-        # Get list of benchmark JSON files from base branch
-        BASE_FILES=$(git ls-tree --name-only "origin/${{ inputs.base-ref }}" -- ${{ inputs.bench-dir }}/ 2>/dev/null | grep '_latest\.benchmark\.json$' || true)
-        
-        if [ -z "$BASE_FILES" ]; then
-          echo "No benchmark files found in base branch. This might be the first benchmark run."
+        # Check if any baseline files exist
+        baseline_count=$(ls -1 ${{ inputs.bench-dir }}/*_latest.benchmark.json 2>/dev/null | wc -l)
+        if [ "$baseline_count" -eq 0 ]; then
+          echo "⚠️ No baseline found for ${{ inputs.base-ref }}"
+          echo "This is expected for first benchmark run or if baseline expired"
+          echo "All benchmarks will be reported as new"
         else
-          for file in $BASE_FILES; do
-            filename=$(basename "$file")
-            echo "Fetching $file -> ${{ inputs.bench-dir }}/$filename"
-            git show "origin/${{ inputs.base-ref }}:$file" > "${{ inputs.bench-dir }}/$filename"
-          done
+          echo "✓ Baseline benchmarks loaded successfully"
+          ls -lh ${{ inputs.bench-dir }}/*_latest.benchmark.json
         fi
 
     - name: Generate Markdown diff
@@ -69,4 +73,4 @@ runs:
       with:
         name: benchmark-results-pr-${{ inputs.pr-number }}
         path: ${{ inputs.bench-dir }}/*_latest.benchmark.json
-        retention-days: 2
+        retention-days: 7
