@@ -65,11 +65,12 @@ runs:
         **Current Benchmark Results:**
         EOF
 
-    - name: Generate Markdown diff
-      uses: defi-wonderland/aztec-benchmark/action@main
-      with:
-        base_suffix: '_latest'
-        current_suffix: '_new'
+    - name: Generate benchmarks with system info
+      shell: bash
+      env:
+        BENCH_DIR: ${{ inputs.bench-dir }}
+      run: |
+        node .github/scripts/benchmark-with-system-info.js
 
     - name: Comment diff on PR
       uses: peter-evans/create-or-update-comment@v4

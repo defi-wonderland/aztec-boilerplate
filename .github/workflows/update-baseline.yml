@@ -42,22 +42,17 @@ jobs:
           run-codegen: 'true'
 
       - name: Run benchmarks
-        run: yarn benchmark
-
-      - name: Prepare baseline files
         run: |
-          echo "Preparing baseline benchmark files for branch: ${{ github.ref_name }}"
+          echo "Running benchmarks with --suffix _latest"
+          npx aztec-benchmark --suffix _latest
 
-          # Rename _new files to _latest (the canonical stored format)
-          for file in ${{ env.BENCH_DIR }}/*_new.benchmark.json; do
-            if [ -f "$file" ]; then
-              new_name="${file/_new.benchmark.json/_latest.benchmark.json}"
-              echo "Renaming $file -> $new_name"
-              mv "$file" "$new_name"
-            fi
-          done
+      - name: Inject system information
+        run: |
+          echo "Injecting system information into baseline benchmarks"
+          node .github/scripts/inject-system-info.js ${{ env.BENCH_DIR }}
 
-          # List final files
+      - name: Verify baseline files
+        run: |
           echo "Baseline files to upload:"
           ls -lh ${{ env.BENCH_DIR }}/*_latest.benchmark.json
 
