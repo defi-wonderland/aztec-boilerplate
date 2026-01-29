@@ -7,4 +7,4 @@ runs:
     - name: Run JS tests
       shell: bash
       run: |
-        script -e -c "BASE_PXE_URL=http://localhost NODE_NO_WARNINGS=1 node --experimental-vm-modules $(yarn bin jest) --no-cache --runInBand --config jest.integration.config.json"
+        script -e -c "BASE_PXE_URL=http://localhost NODE_NO_WARNINGS=1 yarn test:js"
