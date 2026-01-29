@@ -8,6 +8,9 @@ inputs:
   base-ref:
     description: 'Base branch ref for comparison'
     required: true
+  head-ref:
+    description: 'Head branch ref (source branch of PR)'
+    required: true
   bench-dir:
     description: 'Directory for benchmark files'
     required: false
@@ -16,13 +19,34 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Download baseline artifact
-      id: download-baseline
+    - name: Encode base branch name
+      id: encode-base
+      shell: bash
+      run: |
+        # Replace slashes with hyphens for artifact naming
+        # GitHub artifact names don't support slashes
+        encoded=$(echo "${{ inputs.base-ref }}" | sed 's/\//-/g')
+        echo "base-ref-encoded=${encoded}" >> $GITHUB_OUTPUT
+
+    - name: Try downloading from PR baseline first
+      id: download-pr-baseline
+      uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+      with:
+        workflow: pr-checks.yml
+        branch: ${{ inputs.base-ref }}
+        name: benchmark-baseline-${{ steps.encode-base.outputs.base-ref-encoded }}
+        path: ${{ inputs.bench-dir }}
+        if_no_artifact_found: warn
+      continue-on-error: true
+
+    - name: Fallback to update-baseline workflow
+      if: steps.download-pr-baseline.outcome == 'failure'
+      id: download-update-baseline
       uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
       with:
         workflow: update-baseline.yml
         branch: ${{ inputs.base-ref }}
-        name: benchmark-baseline-${{ inputs.base-ref }}
+        name: benchmark-baseline-${{ steps.encode-base.outputs.base-ref-encoded }}
         path: ${{ inputs.bench-dir }}
         if_no_artifact_found: warn
       continue-on-error: true
@@ -92,9 +116,18 @@ runs:
           fi
         done
 
-    - name: Upload benchmark results
+    - name: Encode head branch name
+      id: encode-head
+      shell: bash
+      run: |
+        # Replace slashes with hyphens for artifact naming
+        # GitHub artifact names don't support slashes
+        encoded=$(echo "${{ inputs.head-ref }}" | sed 's/\//-/g')
+        echo "head-ref-encoded=${encoded}" >> $GITHUB_OUTPUT
+
+    - name: Upload branch baseline
       uses: actions/upload-artifact@v4
       with:
-        name: benchmark-results-pr-${{ inputs.pr-number }}
+        name: benchmark-baseline-${{ steps.encode-head.outputs.head-ref-encoded }}
         path: ${{ inputs.bench-dir }}/*_latest.benchmark.json
-        retention-days: 7
+        retention-days: 90

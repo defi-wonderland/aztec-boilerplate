@@ -61,10 +61,18 @@ jobs:
           echo "Baseline files to upload:"
           ls -lh ${{ env.BENCH_DIR }}/*_latest.benchmark.json
 
+      - name: Encode branch name
+        id: encode
+        run: |
+          # Replace slashes with hyphens for artifact naming
+          # GitHub artifact names don't support slashes
+          encoded=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+          echo "branch-encoded=${encoded}" >> $GITHUB_OUTPUT
+
       - name: Upload baseline artifact
         uses: actions/upload-artifact@v4
         with:
-          name: benchmark-baseline-${{ github.ref_name }}
+          name: benchmark-baseline-${{ steps.encode.outputs.branch-encoded }}
           path: ${{ env.BENCH_DIR }}/*_latest.benchmark.json
           retention-days: 90
           if-no-files-found: error
