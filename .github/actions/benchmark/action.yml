@@ -46,23 +46,6 @@ runs:
         path: ${{ inputs.bench-dir }}
         if_no_artifact_found: warn
 
-    - name: Create baseline notice if missing
-      if: steps.download-baseline.outputs.found_artifact != 'true'
-      shell: bash
-      run: |
-        cat > benchmark-comparison.md <<'EOF'
-        ## ⚠️ Benchmark Results (No Baseline)
-
-        This is the first benchmark run for the `${{ inputs.base-ref }}` branch, or the baseline has expired.
-
-        **What this means:**
-        - All benchmark results below are from this PR only
-        - No comparison available until baseline is established
-        - After this PR merges, future PRs will compare against these results
-
-        **Current Benchmark Results:**
-        EOF
-
     - name: Generate Markdown diff
       uses: defi-wonderland/aztec-benchmark/action@main
       with:
@@ -105,3 +88,4 @@ runs:
         name: benchmark-baseline-${{ steps.encode-head.outputs.head-ref-encoded }}
         path: ${{ inputs.bench-dir }}/*_latest.benchmark.json
         retention-days: 90
+        if-no-files-found: error
