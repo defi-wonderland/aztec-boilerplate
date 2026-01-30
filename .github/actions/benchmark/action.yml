@@ -47,6 +47,10 @@ runs:
         path: ${{ inputs.bench-dir }}
         if_no_artifact_found: warn
 
+    - name: Run benchmarks
+      shell: bash
+      run: yarn aztec-benchmark --suffix _new
+
     - name: Generate Markdown diff
       uses: defi-wonderland/aztec-benchmark/action@main
       with:
