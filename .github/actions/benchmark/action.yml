@@ -38,6 +38,7 @@ runs:
 
     - name: Download baseline artifact
       id: download-baseline
+      continue-on-error: true
       uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
       with:
         workflow: ${{ steps.encode-base.outputs.workflow }}
