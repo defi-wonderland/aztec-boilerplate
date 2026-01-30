@@ -54,8 +54,10 @@ runs:
     - name: Generate Markdown diff
       uses: defi-wonderland/aztec-benchmark/action@main
       with:
+        reports_dir: ${{ inputs.bench-dir }}
         base_suffix: '_baseline'
         current_suffix: '_latest'
+        only_report: true
 
     - name: Comment diff on PR
       uses: peter-evans/create-or-update-comment@v4
