@@ -42,12 +42,12 @@ jobs:
           run-codegen: 'true'
 
       - name: Run benchmarks
-        run: yarn aztec-benchmark --suffix _latest
+        run: yarn aztec-benchmark --suffix _baseline
 
       - name: List baseline files
         run: |
           echo "Baseline files for branch: ${{ github.ref_name }}"
-          ls -lh ${{ env.BENCH_DIR }}/*_latest.benchmark.json
+          ls -lh ${{ env.BENCH_DIR }}/*_baseline.benchmark.json
 
       - name: Encode branch name
         id: encode
@@ -61,6 +61,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-baseline-${{ steps.encode.outputs.branch-encoded }}
-          path: ${{ env.BENCH_DIR }}/*_latest.benchmark.json
+          path: ${{ env.BENCH_DIR }}/*_baseline.benchmark.json
           retention-days: 90
           if-no-files-found: error
