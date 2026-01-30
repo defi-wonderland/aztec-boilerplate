@@ -1,0 +1,57 @@
+name: Main Branch Tests
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ══════════════════════════════════════════════════════════════════════════════
+  # JS TESTS
+  # ══════════════════════════════════════════════════════════════════════════════
+  js-tests:
+    name: JS Tests
+    runs-on: ubuntu-latest-m
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Aztec environment
+        uses: ./.github/actions/setup-aztec
+        with:
+          start-pxe: 'true'
+          run-codegen: 'true'
+
+      - name: Run JS tests
+        uses: ./.github/actions/js-tests
+
+  # ══════════════════════════════════════════════════════════════════════════════
+  # NOIR TESTS
+  # ══════════════════════════════════════════════════════════════════════════════
+  noir-tests:
+    name: Noir Tests
+    runs-on: ubuntu-latest-m
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Aztec environment
+        uses: ./.github/actions/setup-aztec
+        with:
+          start-pxe: 'false'
+          run-codegen: 'false'
+
+      - name: Run Noir tests
+        uses: ./.github/actions/noir-tests
+        with:
+          threads: '12'

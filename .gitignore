@@ -8,3 +8,6 @@ codegenCache.json
 .env
 .cursor
 pxe-test/
+
+# Benchmark results (stored in artifacts, not git)
+benchmarks/*.benchmark.json
