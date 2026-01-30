@@ -49,13 +49,13 @@ runs:
 
     - name: Run benchmarks
       shell: bash
-      run: yarn aztec-benchmark --suffix _new
+      run: yarn aztec-benchmark --suffix _latest
 
     - name: Generate Markdown diff
       uses: defi-wonderland/aztec-benchmark/action@main
       with:
-        base_suffix: '_latest'
-        current_suffix: '_new'
+        base_suffix: '_baseline'
+        current_suffix: '_latest'
 
     - name: Comment diff on PR
       uses: peter-evans/create-or-update-comment@v4
@@ -66,14 +66,11 @@ runs:
     - name: Prepare benchmark files for upload
       shell: bash
       run: |
-        # Remove old _latest files (from base branch fetch) before renaming
-        rm -f ${{ inputs.bench-dir }}/*_latest.benchmark.json
-        
-        # Rename _new files to _latest (the canonical stored format)
-        for file in ${{ inputs.bench-dir }}/*_new.benchmark.json; do
+        # Remove downloaded baseline files and rename current results to baseline format
+        rm -f ${{ inputs.bench-dir }}/*_baseline.benchmark.json
+        for file in ${{ inputs.bench-dir }}/*_latest.benchmark.json; do
           if [ -f "$file" ]; then
-            new_name="${file/_new.benchmark.json/_latest.benchmark.json}"
-            echo "Renaming $file -> $new_name"
+            new_name="${file/_latest.benchmark.json/_baseline.benchmark.json}"
             mv "$file" "$new_name"
           fi
         done
@@ -91,6 +88,6 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: benchmark-baseline-${{ steps.encode-head.outputs.head-ref-encoded }}
-        path: ${{ inputs.bench-dir }}/*_latest.benchmark.json
+        path: ${{ inputs.bench-dir }}/*_baseline.benchmark.json
         retention-days: 90
         if-no-files-found: error
