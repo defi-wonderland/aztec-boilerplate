@@ -8,6 +8,9 @@ inputs:
   base-ref:
     description: 'Base branch ref for comparison'
     required: true
+  head-ref:
+    description: 'Head branch ref (source branch of PR)'
+    required: true
   bench-dir:
     description: 'Directory for benchmark files'
     required: false
@@ -16,26 +19,32 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Fetch base branch benchmark results
+    - name: Encode base branch name
+      id: encode-base
       shell: bash
       run: |
-        echo "Fetching benchmark results from base branch: ${{ inputs.base-ref }}"
-        
-        # Clean up any existing _latest.benchmark.json files
-        rm -f ${{ inputs.bench-dir }}/*_latest.benchmark.json
-        
-        # Get list of benchmark JSON files from base branch
-        BASE_FILES=$(git ls-tree --name-only "origin/${{ inputs.base-ref }}" -- ${{ inputs.bench-dir }}/ 2>/dev/null | grep '_latest\.benchmark\.json$' || true)
-        
-        if [ -z "$BASE_FILES" ]; then
-          echo "No benchmark files found in base branch. This might be the first benchmark run."
+        # Replace slashes with hyphens for artifact naming
+        # GitHub artifact names don't support slashes
+        encoded=$(echo "${{ inputs.base-ref }}" | sed 's/\//-/g')
+        echo "base-ref-encoded=${encoded}" >> $GITHUB_OUTPUT
+
+        # Determine which workflow created the baseline
+        # dev/main baselines are from update-baseline.yml, others from pr-checks.yml
+        if [[ "${{ inputs.base-ref }}" == "dev" || "${{ inputs.base-ref }}" == "main" ]]; then
+          echo "workflow=update-baseline.yml" >> $GITHUB_OUTPUT
         else
-          for file in $BASE_FILES; do
-            filename=$(basename "$file")
-            echo "Fetching $file -> ${{ inputs.bench-dir }}/$filename"
-            git show "origin/${{ inputs.base-ref }}:$file" > "${{ inputs.bench-dir }}/$filename"
-          done
+          echo "workflow=pr-checks.yml" >> $GITHUB_OUTPUT
         fi
+
+    - name: Download baseline artifact
+      id: download-baseline
+      uses: dawidd6/action-download-artifact@0bd50d53a6d7fb5cb921e607957e9cc12b4ce392 # v12
+      with:
+        workflow: ${{ steps.encode-base.outputs.workflow }}
+        branch: ${{ inputs.base-ref }}
+        name: benchmark-baseline-${{ steps.encode-base.outputs.base-ref-encoded }}
+        path: ${{ inputs.bench-dir }}
+        if_no_artifact_found: warn
 
     - name: Generate Markdown diff
       uses: defi-wonderland/aztec-benchmark/action@main
@@ -64,9 +73,19 @@ runs:
           fi
         done
 
-    - name: Upload benchmark results
+    - name: Encode head branch name
+      id: encode-head
+      shell: bash
+      run: |
+        # Replace slashes with hyphens for artifact naming
+        # GitHub artifact names don't support slashes
+        encoded=$(echo "${{ inputs.head-ref }}" | sed 's/\//-/g')
+        echo "head-ref-encoded=${encoded}" >> $GITHUB_OUTPUT
+
+    - name: Upload branch baseline
       uses: actions/upload-artifact@v4
       with:
-        name: benchmark-results-pr-${{ inputs.pr-number }}
+        name: benchmark-baseline-${{ steps.encode-head.outputs.head-ref-encoded }}
         path: ${{ inputs.bench-dir }}/*_latest.benchmark.json
-        retention-days: 2
+        retention-days: 90
+        if-no-files-found: error

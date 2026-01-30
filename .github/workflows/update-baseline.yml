@@ -1,0 +1,66 @@
+name: Update Baseline Benchmarks
+
+on:
+  # Trigger when changes merge to dev or main
+  push:
+    branches:
+      - dev
+      - main
+
+  # Monthly refresh to prevent 90-day expiration
+  schedule:
+    - cron: '0 0 1 * *' # First day of every month at midnight UTC
+
+  # Manual trigger option
+  workflow_dispatch:
+
+concurrency:
+  group: update-baseline-${{ github.ref_name }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  BENCH_DIR: ./benchmarks
+
+jobs:
+  update-baseline:
+    name: Update Baseline
+    runs-on: ubuntu-latest-m
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Aztec environment
+        uses: ./.github/actions/setup-aztec
+        with:
+          start-pxe: 'true'
+          run-codegen: 'true'
+
+      - name: Run benchmarks
+        run: aztec-benchmark --suffix _latest
+
+      - name: List baseline files
+        run: |
+          echo "Baseline files for branch: ${{ github.ref_name }}"
+          ls -lh ${{ env.BENCH_DIR }}/*_latest.benchmark.json
+
+      - name: Encode branch name
+        id: encode
+        run: |
+          # Replace slashes with hyphens for artifact naming
+          # GitHub artifact names don't support slashes
+          encoded=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')
+          echo "branch-encoded=${encoded}" >> $GITHUB_OUTPUT
+
+      - name: Upload baseline artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-baseline-${{ steps.encode.outputs.branch-encoded }}
+          path: ${{ env.BENCH_DIR }}/*_latest.benchmark.json
+          retention-days: 90
+          if-no-files-found: error
