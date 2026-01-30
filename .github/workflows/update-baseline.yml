@@ -42,7 +42,7 @@ jobs:
           run-codegen: 'true'
 
       - name: Run benchmarks
-        run: aztec-benchmark --suffix _latest
+        run: yarn aztec-benchmark --suffix _latest
 
       - name: List baseline files
         run: |
