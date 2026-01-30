@@ -33,9 +33,17 @@ pub contract Counter {
         self.storage.owner.read()
     }
 
-    /// @dev Increments the counter
+    /// @dev Increments the counter with expensive computation
     #[external("private")]
     fn increment() {
+        // Perform expensive loop computation to increase gate count
+        let mut sum: u64 = 0;
+        for i in 0..1000 {
+            sum = sum + (i * i);
+            if sum > 100000 {
+                sum = sum / 2;
+            }
+        }
         self.enqueue_self.increment_internal();
     }
 
