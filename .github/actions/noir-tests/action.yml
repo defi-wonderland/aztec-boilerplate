@@ -1,0 +1,16 @@
+name: 'Run Noir Tests'
+description: 'Run Noir contract tests'
+
+inputs:
+  threads:
+    description: 'Number of test threads'
+    required: false
+    default: '12'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run Noir tests
+      shell: bash
+      run: |
+        script -e -c "aztec test --test-threads ${{ inputs.threads }}"
