@@ -42,23 +42,11 @@ jobs:
           run-codegen: 'true'
 
       - name: Run benchmarks
-        run: yarn benchmark
+        run: aztec-benchmark --suffix _latest
 
-      - name: Prepare baseline files
+      - name: List baseline files
         run: |
-          echo "Preparing baseline benchmark files for branch: ${{ github.ref_name }}"
-
-          # Rename _new files to _latest (the canonical stored format)
-          for file in ${{ env.BENCH_DIR }}/*_new.benchmark.json; do
-            if [ -f "$file" ]; then
-              new_name="${file/_new.benchmark.json/_latest.benchmark.json}"
-              echo "Renaming $file -> $new_name"
-              mv "$file" "$new_name"
-            fi
-          done
-
-          # List final files
-          echo "Baseline files to upload:"
+          echo "Baseline files for branch: ${{ github.ref_name }}"
           ls -lh ${{ env.BENCH_DIR }}/*_latest.benchmark.json
 
       - name: Encode branch name
