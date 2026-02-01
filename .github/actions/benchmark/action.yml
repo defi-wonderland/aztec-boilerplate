@@ -47,35 +47,26 @@ runs:
         path: ${{ inputs.bench-dir }}
         if_no_artifact_found: warn
 
-    - name: Run benchmarks
+    - name: Normalize baseline file naming
       shell: bash
-      run: yarn aztec-benchmark --suffix _new
+      run: |
+        # Handle transition: rename _latest to _base if old naming exists
+        for file in ${{ inputs.bench-dir }}/*_latest.benchmark.json; do
+          if [ -f "$file" ]; then
+            mv "$file" "${file/_latest.benchmark.json/_base.benchmark.json}"
+          fi
+        done
 
-    - name: Generate Markdown diff
+    - name: Run benchmarks and compare
       uses: defi-wonderland/aztec-benchmark/action@main
       with:
         reports_dir: ${{ inputs.bench-dir }}
-        base_suffix: '_latest'
-        current_suffix: '_new'
-        only_report: true
 
     - name: Comment diff on PR
       uses: peter-evans/create-or-update-comment@v4
       with:
         issue-number: ${{ inputs.pr-number }}
         body-path: benchmark-comparison.md
-
-    - name: Prepare benchmark files for upload
-      shell: bash
-      run: |
-        # Remove downloaded baseline files and rename current results to baseline format
-        rm -f ${{ inputs.bench-dir }}/*_latest.benchmark.json
-        for file in ${{ inputs.bench-dir }}/*_new.benchmark.json; do
-          if [ -f "$file" ]; then
-            new_name="${file/_new.benchmark.json/_latest.benchmark.json}"
-            mv "$file" "$new_name"
-          fi
-        done
 
     - name: Encode head branch name
       id: encode-head
@@ -86,10 +77,21 @@ runs:
         encoded=$(echo "${{ inputs.head-ref }}" | sed 's/\//-/g')
         echo "head-ref-encoded=${encoded}" >> $GITHUB_OUTPUT
 
+    - name: Prepare benchmark files for upload
+      shell: bash
+      run: |
+        # Remove downloaded baseline files and rename current results to baseline format
+        rm -f ${{ inputs.bench-dir }}/*_base.benchmark.json
+        for file in ${{ inputs.bench-dir }}/*_latest.benchmark.json; do
+          if [ -f "$file" ]; then
+            mv "$file" "${file/_latest.benchmark.json/_base.benchmark.json}"
+          fi
+        done
+
     - name: Upload branch baseline
       uses: actions/upload-artifact@v4
       with:
         name: benchmark-baseline-${{ steps.encode-head.outputs.head-ref-encoded }}
-        path: ${{ inputs.bench-dir }}/*_latest.benchmark.json
+        path: ${{ inputs.bench-dir }}/*_base.benchmark.json
         retention-days: 90
         if-no-files-found: error
