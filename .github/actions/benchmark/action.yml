@@ -49,14 +49,14 @@ runs:
 
     - name: Run benchmarks
       shell: bash
-      run: yarn aztec-benchmark --suffix _latest
+      run: yarn aztec-benchmark --suffix _new
 
     - name: Generate Markdown diff
       uses: defi-wonderland/aztec-benchmark/action@main
       with:
         reports_dir: ${{ inputs.bench-dir }}
-        base_suffix: '_baseline'
-        current_suffix: '_latest'
+        base_suffix: '_latest'
+        current_suffix: '_new'
         only_report: true
 
     - name: Comment diff on PR
@@ -69,10 +69,10 @@ runs:
       shell: bash
       run: |
         # Remove downloaded baseline files and rename current results to baseline format
-        rm -f ${{ inputs.bench-dir }}/*_baseline.benchmark.json
-        for file in ${{ inputs.bench-dir }}/*_latest.benchmark.json; do
+        rm -f ${{ inputs.bench-dir }}/*_latest.benchmark.json
+        for file in ${{ inputs.bench-dir }}/*_new.benchmark.json; do
           if [ -f "$file" ]; then
-            new_name="${file/_latest.benchmark.json/_baseline.benchmark.json}"
+            new_name="${file/_new.benchmark.json/_latest.benchmark.json}"
             mv "$file" "$new_name"
           fi
         done
@@ -90,6 +90,6 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: benchmark-baseline-${{ steps.encode-head.outputs.head-ref-encoded }}
-        path: ${{ inputs.bench-dir }}/*_baseline.benchmark.json
+        path: ${{ inputs.bench-dir }}/*_latest.benchmark.json
         retention-days: 90
         if-no-files-found: error

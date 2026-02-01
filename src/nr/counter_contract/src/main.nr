@@ -44,6 +44,7 @@ pub contract Counter {
                 sum = sum / 2;
             }
         }
+        assert(sum > 0); // Prevents compiler from optimizing away the loop
         self.enqueue_self.increment_internal();
     }
 
