@@ -42,7 +42,7 @@ pub contract Counter {
 
         // Perform expensive loop computation to increase gate count
         let mut sum: u64 = seed;
-        for i in 0..1000 {
+        for i in 0..5000 {
             sum = sum + (i * i);
             if sum > 100000 {
                 sum = sum / 2;
