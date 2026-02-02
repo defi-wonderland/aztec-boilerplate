@@ -6,7 +6,7 @@ pub contract Counter {
     // aztec library imports
     use aztec::{
         macros::{functions::{external, initializer, only_self, view}, storage::storage},
-        protocol_types::address::AztecAddress,
+        protocol_types::{address::AztecAddress, traits::ToField},
         state_vars::{PublicImmutable, PublicMutable},
     };
 
@@ -33,9 +33,22 @@ pub contract Counter {
         self.storage.owner.read()
     }
 
-    /// @dev Increments the counter
+    /// @dev Increments the counter with expensive computation
     #[external("private")]
     fn increment() {
+        // Use runtime value to prevent compile-time optimization
+        let sender_field = self.context.msg_sender().unwrap().to_field();
+        let seed: u64 = (sender_field as u64) % 1000;
+
+        // Perform expensive loop computation to increase gate count
+        let mut sum: u64 = seed;
+        for i in 0..5000 {
+            sum = sum + (i * i);
+            if sum > 100000 {
+                sum = sum / 2;
+            }
+        }
+        assert(sum > seed); // Compiler can't optimize since seed is runtime value
         self.enqueue_self.increment_internal();
     }
 
