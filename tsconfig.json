@@ -18,9 +18,9 @@
     "downlevelIteration": true,
     "inlineSourceMap": true,
     "importHelpers": true,
-    "composite": true,
+    "incremental": true,
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "scripts/**/*.ts", "benchmarks/**/*.ts", "jest.setup.ts", "jest.teardown.ts", "target/**/*", "artifacts/**/*"],
+  "include": ["src/**/*", "scripts/**/*.ts", "benchmarks/**/*.ts", "vitest.setup.ts", "vitest.config.ts"],
   "exclude": ["node_modules"]
 }
