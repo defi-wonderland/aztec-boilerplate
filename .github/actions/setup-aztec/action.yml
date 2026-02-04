@@ -53,7 +53,7 @@ runs:
     - name: Switch CLI to target version
       shell: bash
       run: |
-        VERSION=${{ steps.aztec-version.outputs.version }} aztec-up
+        aztec-up install ${{ steps.aztec-version.outputs.version }}
 
     # Temporary hack to fix a problem with v3 releases
     - name: Tag Aztec Docker image as latest
