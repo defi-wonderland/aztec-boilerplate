@@ -24,13 +24,9 @@ export default defineConfig({
     globalSetup: "./vitest.setup.ts",
     fileParallelism: false,
     pool: "forks",
-    poolOptions: {
-      forks: {
-        singleFork: true,
-        isolate: false,
-        execArgv: ["--experimental-vm-modules"],
-      },
-    },
+    singleFork: true,
+    isolate: false,
+    execArgv: ["--experimental-vm-modules"],
     // Use new API to inline dependencies through Vite's transform pipeline
     // This ensures viem, @aztec, @noble, and @scure packages use Vite's module resolution with proper aliasing
     server: {

@@ -44,12 +44,9 @@ describe("Counter Contract", () => {
       }),
     ).toBe(0n);
     // call to `increment`
-    await counter.methods
-      .increment()
-      .send({
-        from: alice,
-      })
-      .wait();
+    await counter.methods.increment().send({
+      from: alice,
+    });
     // now the counter should be incremented.
     expect(
       await counter.methods.get_counter().simulate({

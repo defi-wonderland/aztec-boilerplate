@@ -6,7 +6,7 @@ pub contract Counter {
     // aztec library imports
     use aztec::{
         macros::{functions::{external, initializer, only_self, view}, storage::storage},
-        protocol_types::address::AztecAddress,
+        protocol::address::AztecAddress,
         state_vars::{PublicImmutable, PublicMutable},
     };
 
