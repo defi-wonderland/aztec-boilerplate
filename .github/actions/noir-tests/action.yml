@@ -13,4 +13,5 @@ runs:
     - name: Run Noir tests
       shell: bash
       run: |
+        export PATH="/home/runner/.aztec/bin:$PATH"
         script -e -c "aztec test --test-threads ${{ inputs.threads }}"

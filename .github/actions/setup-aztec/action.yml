@@ -50,12 +50,15 @@ runs:
     - name: Switch CLI to target version
       shell: bash
       run: |
+        export PATH="/home/runner/.aztec/bin:$PATH"
         aztec-up install ${{ steps.aztec-version.outputs.version }}
 
     - name: Start local network
       if: inputs.start-pxe == 'true'
       shell: bash
-      run: aztec start --local-network &
+      run: |
+        export PATH="/home/runner/.aztec/bin:$PATH"
+        aztec start --local-network &
 
     - name: Install dependencies
       shell: bash
@@ -63,17 +66,22 @@ runs:
 
     - name: Compile contracts
       shell: bash
-      run: aztec compile
+      run: |
+        export PATH="/home/runner/.aztec/bin:$PATH"
+        aztec compile
 
     - name: Codegen wrappers
       if: inputs.run-codegen == 'true'
       shell: bash
-      run: aztec codegen target --outdir src/artifacts -f
+      run: |
+        export PATH="/home/runner/.aztec/bin:$PATH"
+        aztec codegen target --outdir src/artifacts -f
 
     - name: Start PXE node
       if: inputs.start-pxe == 'true'
       shell: bash
       run: |
+        export PATH="/home/runner/.aztec/bin:$PATH"
         VERSION=${{ steps.aztec-version.outputs.version }} aztec \
           start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
           --pxe.proverEnabled false &
