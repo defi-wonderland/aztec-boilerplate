@@ -1,5 +1,5 @@
 name: 'Setup Aztec Environment'
-description: 'Common setup for Aztec development: Node, Docker, Aztec CLI, dependencies, and local network'
+description: 'Common setup for Aztec development: Node, Foundry, Aztec CLI, dependencies, and local network'
 
 inputs:
   start-pxe:
@@ -28,9 +28,6 @@ runs:
       shell: bash
       run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
     - name: Detect Aztec version
       id: aztec-version
       shell: bash
@@ -54,12 +51,6 @@ runs:
       shell: bash
       run: |
         aztec-up install ${{ steps.aztec-version.outputs.version }}
-
-    # Temporary hack to fix a problem with v3 releases
-    - name: Tag Aztec Docker image as latest
-      shell: bash
-      run: |
-        docker tag aztecprotocol/aztec:${{ steps.aztec-version.outputs.version }} aztecprotocol/aztec:latest
 
     - name: Start local network
       if: inputs.start-pxe == 'true'
