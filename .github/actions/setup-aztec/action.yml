@@ -43,6 +43,7 @@ runs:
       shell: bash
       run: |
         curl -L https://foundry.paradigm.xyz | bash
+        source ~/.bashrc
         export PATH="$HOME/.foundry/bin:$PATH"
         foundryup
         echo "$HOME/.foundry/bin" >> $GITHUB_PATH
