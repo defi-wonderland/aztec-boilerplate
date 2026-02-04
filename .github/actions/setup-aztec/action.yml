@@ -7,7 +7,7 @@ inputs:
     required: false
     default: 'false'
   run-codegen:
-    description: 'Whether to run yarn codegen'
+    description: 'Whether to run aztec codegen'
     required: false
     default: 'false'
 
@@ -63,12 +63,12 @@ runs:
 
     - name: Compile contracts
       shell: bash
-      run: yarn compile
+      run: aztec compile
 
     - name: Codegen wrappers
       if: inputs.run-codegen == 'true'
       shell: bash
-      run: yarn codegen
+      run: aztec codegen target --outdir src/artifacts -f
 
     - name: Start PXE node
       if: inputs.start-pxe == 'true'
