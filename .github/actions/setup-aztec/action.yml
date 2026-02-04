@@ -39,12 +39,21 @@ runs:
         echo "version=$VER" >> "$GITHUB_OUTPUT"
         echo "Aztec version: $VER"
 
+    - name: Install Foundry
+      shell: bash
+      run: |
+        curl -L https://foundry.paradigm.xyz | bash
+        export PATH="$HOME/.foundry/bin:$PATH"
+        foundryup
+        echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+
     - name: Install Aztec CLI
       shell: bash
       run: |
         INSTALL_URL="https://install.aztec.network/${{ steps.aztec-version.outputs.version }}/"
         echo "Installing from: $INSTALL_URL"
         curl -sL $INSTALL_URL > tmp.sh
+        export PATH="$HOME/.foundry/bin:$PATH"
         VERSION=${{ steps.aztec-version.outputs.version }} bash tmp.sh <<< yes "yes"
 
     - name: Switch CLI to target version
