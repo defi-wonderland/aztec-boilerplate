@@ -26,7 +26,10 @@ runs:
 
     - name: Update PATH for Aztec
       shell: bash
-      run: echo "/home/runner/.aztec/bin" >> $GITHUB_PATH
+      run: |
+        echo "$HOME/.aztec/current/bin" >> $GITHUB_PATH
+        echo "$HOME/.aztec/current/node_modules/.bin" >> $GITHUB_PATH
+        echo "$HOME/.aztec/bin" >> $GITHUB_PATH
 
     - name: Detect Aztec version
       id: aztec-version
@@ -47,13 +50,8 @@ runs:
         curl -sL $INSTALL_URL > tmp.sh
         VERSION=${{ steps.aztec-version.outputs.version }} bash tmp.sh <<< yes "yes"
 
-        # Add ALL required paths
-        echo "$HOME/.aztec/current/bin" >> $GITHUB_PATH
-        echo "$HOME/.aztec/current/node_modules/.bin" >> $GITHUB_PATH
-        echo "$HOME/.aztec/bin" >> $GITHUB_PATH
-
     - name: Switch CLI to target version
-      shell: bash -c "source $HOME/.aztec-env && bash {0}"
+      shell: bash
       run: aztec-up install ${{ steps.aztec-version.outputs.version }}
 
     - name: Start local network
