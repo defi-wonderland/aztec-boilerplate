@@ -47,18 +47,19 @@ runs:
         curl -sL $INSTALL_URL > tmp.sh
         VERSION=${{ steps.aztec-version.outputs.version }} bash tmp.sh <<< yes "yes"
 
+        # Add ALL required paths
+        echo "$HOME/.aztec/current/bin" >> $GITHUB_PATH
+        echo "$HOME/.aztec/current/node_modules/.bin" >> $GITHUB_PATH
+        echo "$HOME/.aztec/bin" >> $GITHUB_PATH
+
     - name: Switch CLI to target version
-      shell: bash
-      run: |
-        export PATH="/home/runner/.aztec/bin:$PATH"
-        aztec-up install ${{ steps.aztec-version.outputs.version }}
+      shell: bash -c "source $HOME/.aztec-env && bash {0}"
+      run: aztec-up install ${{ steps.aztec-version.outputs.version }}
 
     - name: Start local network
       if: inputs.start-pxe == 'true'
       shell: bash
-      run: |
-        export PATH="/home/runner/.aztec/bin:$PATH"
-        aztec start --local-network &
+      run: aztec start --local-network &
 
     - name: Install dependencies
       shell: bash
@@ -66,22 +67,17 @@ runs:
 
     - name: Compile contracts
       shell: bash
-      run: |
-        export PATH="/home/runner/.aztec/bin:$PATH"
-        aztec compile
+      run: aztec compile
 
     - name: Codegen wrappers
       if: inputs.run-codegen == 'true'
       shell: bash
-      run: |
-        export PATH="/home/runner/.aztec/bin:$PATH"
-        aztec codegen target --outdir src/artifacts -f
+      run: aztec codegen target --outdir src/artifacts -f
 
     - name: Start PXE node
       if: inputs.start-pxe == 'true'
       shell: bash
       run: |
-        export PATH="/home/runner/.aztec/bin:$PATH"
         VERSION=${{ steps.aztec-version.outputs.version }} aztec \
           start --port 8081 --pxe --pxe.nodeUrl=http://localhost:8080/ \
           --pxe.proverEnabled false &
