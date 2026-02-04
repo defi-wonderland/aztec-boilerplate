@@ -44,7 +44,7 @@ runs:
       run: |
         INSTALL_URL="https://install.aztec.network/${{ steps.aztec-version.outputs.version }}/"
         echo "Installing from: $INSTALL_URL"
-        curl -s $INSTALL_URL > tmp.sh
+        curl -sL $INSTALL_URL > tmp.sh
         VERSION=${{ steps.aztec-version.outputs.version }} bash tmp.sh <<< yes "yes"
 
     - name: Switch CLI to target version

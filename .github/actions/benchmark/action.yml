@@ -48,7 +48,7 @@ runs:
         if_no_artifact_found: warn
 
     - name: Generate Markdown diff
-      uses: defi-wonderland/aztec-benchmark/action@main
+      uses: defi-wonderland/aztec-benchmark/action@chore/v4
       with:
         base_suffix: '_latest'
         current_suffix: '_new'
