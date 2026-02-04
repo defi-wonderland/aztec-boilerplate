@@ -40,11 +40,7 @@ runs:
         echo "Aztec version: $VER"
 
     - name: Install Foundry
-      shell: bash
-      run: |
-        curl -L https://foundry.paradigm.xyz | bash
-        /home/runner/.foundry/bin/foundryup
-        echo "/home/runner/.foundry/bin" >> $GITHUB_PATH
+      uses: foundry-rs/foundry-toolchain@v1
 
     - name: Install Aztec CLI
       shell: bash
