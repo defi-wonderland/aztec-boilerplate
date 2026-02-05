@@ -37,6 +37,7 @@ pub contract Counter {
     #[external("private")]
     fn increment() {
         self.enqueue_self.increment_internal();
+        self.enqueue_self.increment_internal();
     }
 
     /// @dev Retrieves the counter value
