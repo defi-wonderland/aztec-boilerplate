@@ -9,5 +9,5 @@ concurrency:
 
 jobs:
   checks:
-    uses: defi-wonderland/aztec-ci-actions/.github/workflows/pr-checks.yml@feat/cache-aztec
+    uses: defi-wonderland/aztec-ci-actions/.github/workflows/run-tests.yml@feat/cache-aztec
     secrets: inherit
