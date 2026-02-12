@@ -11,5 +11,5 @@ concurrency:
 
 jobs:
   tests:
-    uses: defi-wonderland/aztec-ci-actions/.github/workflows/main-tests.yml@feat/v4-workflows
+    uses: defi-wonderland/aztec-ci-actions/.github/workflows/main-tests.yml@feat/cache-aztec
     secrets: inherit

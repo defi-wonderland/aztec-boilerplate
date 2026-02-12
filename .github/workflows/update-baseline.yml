@@ -15,5 +15,5 @@ concurrency:
 
 jobs:
   baseline:
-    uses: defi-wonderland/aztec-ci-actions/.github/workflows/update-baseline.yml@feat/v4-workflows
+    uses: defi-wonderland/aztec-ci-actions/.github/workflows/update-baseline.yml@feat/cache-aztec
     secrets: inherit
