@@ -1,18 +1,13 @@
 import { defineConfig } from "vitest/config";
-import { fileURLToPath } from "node:url";
-import { dirname, resolve as pathResolve } from "node:path";
+import { createRequire } from "node:module";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const nobleUtilsPath = pathResolve(
-  __dirname,
-  "node_modules/@noble/hashes/esm/utils.js",
-);
+const require = createRequire(import.meta.url);
+const nobleUtilsPath = require.resolve("@noble/hashes/utils");
 
 export default defineConfig({
   resolve: {
     alias: {
-      // Force a concrete file path so CI doesn't resolve a nested version without `anumber`
+      // Force a concrete file path so Vite doesn't resolve a nested version without `anumber`
       "@noble/hashes/utils": nobleUtilsPath,
     },
     conditions: ["import", "module", "browser", "default"],
