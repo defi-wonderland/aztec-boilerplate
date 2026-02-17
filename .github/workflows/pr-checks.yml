@@ -9,11 +9,11 @@ concurrency:
 
 jobs:
   checks:
-    uses: defi-wonderland/aztec-ci-actions/.github/workflows/run-tests.yml@prerelease-v0.1.0 # TODO: rm `prerelease-` when aztec-ci-actions released
+    uses: defi-wonderland/aztec-ci-actions/.github/workflows/run-tests.yml@v0
     secrets: inherit
 
   benchmark:
-    uses: defi-wonderland/aztec-benchmark/.github/workflows/pr-benchmark.yml@prerelease-4.0.0-devnet.1-patch.0 # TODO: rm `prerelease-` when aztec-benchmark released
+    uses: defi-wonderland/aztec-benchmark/.github/workflows/pr-benchmark.yml@4.0.0-devnet.1-patch.0
     permissions:
       pull-requests: write
       issues: write
