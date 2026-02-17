@@ -11,3 +11,11 @@ jobs:
   checks:
     uses: defi-wonderland/aztec-ci-actions/.github/workflows/run-tests.yml@v0
     secrets: inherit
+
+  benchmark:
+    uses: defi-wonderland/aztec-benchmark/.github/workflows/pr-benchmark.yml@4.0.0-devnet.1-patch.0
+    permissions:
+      pull-requests: write
+      issues: write
+      actions: read
+    secrets: inherit
