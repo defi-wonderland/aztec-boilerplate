@@ -1,10 +1,8 @@
 import { AztecAddress } from "@aztec/aztec.js/addresses";
 import { createAztecNodeClient, waitForNode } from "@aztec/aztec.js/node";
 import { type ContractFunctionInteractionCallIntent } from "@aztec/aztec.js/authorization";
-import {
-  registerInitialLocalNetworkAccountsInWallet,
-  TestWallet,
-} from "@aztec/test-wallet/server";
+import { EmbeddedWallet } from "@aztec/wallets/embedded";
+import { registerInitialLocalNetworkAccountsInWallet } from "@aztec/wallets/testing";
 import {
   Benchmark,
   type BenchmarkContext,
@@ -14,7 +12,7 @@ import { CounterContract } from "../src/artifacts/Counter.js";
 
 // Extend the BenchmarkContext from the new package
 interface CounterBenchmarkContext extends BenchmarkContext {
-  wallet: TestWallet;
+  wallet: EmbeddedWallet;
   deployer: AztecAddress;
   accounts: AztecAddress[];
   counterContract: CounterContract;
@@ -30,7 +28,7 @@ export default class CounterContractBenchmark extends Benchmark {
     const aztecNode = createAztecNodeClient("http://localhost:8080");
     await waitForNode(aztecNode);
 
-    const wallet: TestWallet = await TestWallet.create(aztecNode);
+    const wallet: EmbeddedWallet = await EmbeddedWallet.create(aztecNode);
     const accounts: AztecAddress[] =
       await registerInitialLocalNetworkAccountsInWallet(wallet);
 
