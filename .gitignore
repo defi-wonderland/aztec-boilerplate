@@ -11,3 +11,6 @@ pxe-test/
 
 # Benchmark results (stored in artifacts, not git)
 benchmarks/*.benchmark.json
+pxe_data_*
+wallet_data_*
+
