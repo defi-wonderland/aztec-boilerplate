@@ -18,7 +18,7 @@ export default defineConfig({
     testTimeout: 200000,
     fileParallelism: false,
     pool: "forks",
-    singleFork: true,
+    maxWorkers: 1,
     isolate: false,
     execArgv: ["--experimental-vm-modules"],
     // Use new API to inline dependencies through Vite's transform pipeline
