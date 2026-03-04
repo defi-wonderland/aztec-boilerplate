@@ -21,6 +21,6 @@
     "incremental": true,
     "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "scripts/**/*.ts", "benchmarks/**/*.ts", "vitest.setup.ts", "vitest.config.ts"],
+  "include": ["src/**/*", "scripts/**/*.ts", "benchmarks/**/*.ts", "vitest.config.ts"],
   "exclude": ["node_modules"]
 }
