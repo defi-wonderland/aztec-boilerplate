@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   baseline:
-    uses: defi-wonderland/aztec-benchmark/.github/workflows/update-baseline.yml@4.0.0-devnet.1-patch.0
+    uses: defi-wonderland/aztec-benchmark/.github/workflows/update-baseline.yml@4.0.0-devnet.2-patch.1
     permissions:
       contents: read
       actions: write
