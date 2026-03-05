@@ -1,28 +1,24 @@
 import { CounterContract } from "../artifacts/Counter.js";
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
-import {
-  registerInitialLocalNetworkAccountsInWallet,
-  TestWallet,
-} from "@aztec/test-wallet/server";
+import { EmbeddedWallet } from "@aztec/wallets/embedded";
+import { registerInitialLocalNetworkAccountsInWallet } from "@aztec/wallets/testing";
 import { createAztecNodeClient } from "@aztec/aztec.js/node";
 import { deployCounter } from "./utils.js";
 import { AztecAddress } from "@aztec/stdlib/aztec-address";
 
 describe("Counter Contract", () => {
-  let wallet: TestWallet;
+  let wallet: EmbeddedWallet;
   let alice: AztecAddress;
   let counter: CounterContract;
 
   beforeAll(async () => {
     const aztecNode = await createAztecNodeClient("http://localhost:8080", {});
-    wallet = await TestWallet.create(
-      aztecNode,
-      {
+    wallet = await EmbeddedWallet.create(aztecNode, {
+      pxeConfig: {
         dataDirectory: "pxe-test",
         proverEnabled: false,
       },
-      {},
-    );
+    });
 
     // Local network starts with predeployed funded accounts; register them in PXE for private execution.
     [alice] = await registerInitialLocalNetworkAccountsInWallet(wallet);
@@ -44,12 +40,9 @@ describe("Counter Contract", () => {
       }),
     ).toBe(0n);
     // call to `increment`
-    await counter.methods
-      .increment()
-      .send({
-        from: alice,
-      })
-      .wait();
+    await counter.methods.increment().send({
+      from: alice,
+    });
     // now the counter should be incremented.
     expect(
       await counter.methods.get_counter().simulate({

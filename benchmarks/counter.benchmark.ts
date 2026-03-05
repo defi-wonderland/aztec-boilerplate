@@ -1,11 +1,8 @@
-import { type Wallet } from "@aztec/aztec.js/wallet";
 import { AztecAddress } from "@aztec/aztec.js/addresses";
 import { createAztecNodeClient, waitForNode } from "@aztec/aztec.js/node";
 import { type ContractFunctionInteractionCallIntent } from "@aztec/aztec.js/authorization";
-import {
-  registerInitialLocalNetworkAccountsInWallet,
-  TestWallet,
-} from "@aztec/test-wallet/server";
+import { EmbeddedWallet } from "@aztec/wallets/embedded";
+import { registerInitialLocalNetworkAccountsInWallet } from "@aztec/wallets/testing";
 import {
   Benchmark,
   type BenchmarkContext,
@@ -15,7 +12,7 @@ import { CounterContract } from "../src/artifacts/Counter.js";
 
 // Extend the BenchmarkContext from the new package
 interface CounterBenchmarkContext extends BenchmarkContext {
-  wallet: Wallet;
+  wallet: EmbeddedWallet;
   deployer: AztecAddress;
   accounts: AztecAddress[];
   counterContract: CounterContract;
@@ -31,15 +28,15 @@ export default class CounterContractBenchmark extends Benchmark {
     const aztecNode = createAztecNodeClient("http://localhost:8080");
     await waitForNode(aztecNode);
 
-    const wallet: TestWallet = await TestWallet.create(aztecNode);
+    const wallet: EmbeddedWallet = await EmbeddedWallet.create(aztecNode);
     const accounts: AztecAddress[] =
       await registerInitialLocalNetworkAccountsInWallet(wallet);
 
     const [deployer] = accounts;
 
-    const counterContract = await CounterContract.deploy(wallet, deployer)
-      .send({ from: deployer })
-      .deployed();
+    const counterContract = await CounterContract.deploy(wallet, deployer).send(
+      { from: deployer },
+    );
 
     return { wallet, deployer, accounts, counterContract };
   }
@@ -60,9 +57,5 @@ export default class CounterContractBenchmark extends Benchmark {
     ];
 
     return methods;
-  }
-
-  async teardown(context: BenchmarkContext): Promise<void> {
-    process.exit(0);
   }
 }
