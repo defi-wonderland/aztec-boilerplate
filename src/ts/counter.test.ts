@@ -2,7 +2,7 @@ import { CounterContract } from "../artifacts/Counter.js";
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { EmbeddedWallet } from "@aztec/wallets/embedded";
 import { registerInitialLocalNetworkAccountsInWallet } from "@aztec/wallets/testing";
-import { createAztecNodeClient } from "@aztec/aztec.js/node";
+import { createAztecNodeClient, waitForNode } from "@aztec/aztec.js/node";
 import { deployCounter } from "./utils.js";
 import { AztecAddress } from "@aztec/stdlib/aztec-address";
 
@@ -12,10 +12,11 @@ describe("Counter Contract", () => {
   let counter: CounterContract;
 
   beforeAll(async () => {
-    const aztecNode = await createAztecNodeClient("http://localhost:8080", {});
+    const aztecNode = createAztecNodeClient("http://localhost:8080");
+    await waitForNode(aztecNode);
     wallet = await EmbeddedWallet.create(aztecNode, {
+      ephemeral: true,
       pxeConfig: {
-        dataDirectory: "pxe-test",
         proverEnabled: false,
       },
     });
@@ -29,25 +30,23 @@ describe("Counter Contract", () => {
   });
 
   it("e2e", async () => {
-    const owner = await counter.methods.get_owner().simulate({
+    const { result: owner } = await counter.methods.get_owner().simulate({
       from: alice,
     });
     expect(owner).toStrictEqual(alice);
     // default counter's value is 0
-    expect(
-      await counter.methods.get_counter().simulate({
-        from: alice,
-      }),
-    ).toBe(0n);
+    const { result: counterBefore } = await counter.methods
+      .get_counter()
+      .simulate({ from: alice });
+    expect(counterBefore).toBe(0n);
     // call to `increment`
     await counter.methods.increment().send({
       from: alice,
     });
     // now the counter should be incremented.
-    expect(
-      await counter.methods.get_counter().simulate({
-        from: alice,
-      }),
-    ).toBe(1n);
+    const { result: counterAfter } = await counter.methods
+      .get_counter()
+      .simulate({ from: alice });
+    expect(counterAfter).toBe(1n);
   });
 });
