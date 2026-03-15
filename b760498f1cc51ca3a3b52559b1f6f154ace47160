@@ -1,0 +1,25 @@
+src/nr/counter_contract/Nargo.toml
+  f93e4839f99f428f 8
+package.json
+  f93e4839f99f428f 24-30,46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.12",
+  "base_commit_sha": "b760498f1cc51ca3a3b52559b1f6f154ace47160",
+  "prompts": {
+    "f93e4839f99f428f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "619f9fe3-425f-4572-a0f9-255cfe70d0d0",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "xorsal <zorzal@wonderland.xyz>",
+      "messages": [],
+      "total_additions": 9,
+      "total_deletions": 9,
+      "accepted_lines": 9,
+      "overriden_lines": 0
+    }
+  }
+}
