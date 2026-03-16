@@ -1,6 +1,10 @@
 [workspace]
 members = [
     "src/nr/counter_contract",
+    "src/nr/contract_b_v1",
+    "src/nr/contract_b_v2",
+    "src/nr/contract_a1",
+    "src/nr/contract_a2",
 ]
 
 [benchmark]
