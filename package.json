@@ -28,7 +28,7 @@
     "@aztec/pxe": "4.0.0-devnet.2-patch.1",
     "@aztec/stdlib": "4.0.0-devnet.2-patch.1",
     "@aztec/wallets": "4.0.0-devnet.2-patch.1",
-    "@defi-wonderland/aztec-benchmark": "4.0.0-devnet.2-patch.1",
+    "@defi-wonderland/aztec-benchmark": "https://github.com/defi-wonderland/aztec-benchmark/releases/download/prerelease-730b14d/defi-wonderland-aztec-benchmark-4.0.0-devnet.2-patch.1-prerelease.730b14d.tgz",
     "@types/node": "25.0.10"
   },
   "devDependencies": {
