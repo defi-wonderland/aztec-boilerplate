@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   baseline:
-    uses: defi-wonderland/aztec-benchmark/.github/workflows/update-baseline.yml@8701b40bb8d42543696e3d2b07f4ccb2d2d3d830 # TODO: update to 4.1.0-rc.4 when released
+    uses: defi-wonderland/aztec-benchmark/.github/workflows/update-baseline.yml@4.1.0-rc.4
     permissions:
       contents: read
       actions: write

@@ -28,7 +28,7 @@
     "@aztec/pxe": "4.1.0-rc.4",
     "@aztec/stdlib": "4.1.0-rc.4",
     "@aztec/wallets": "4.1.0-rc.4",
-    "@defi-wonderland/aztec-benchmark": "https://github.com/defi-wonderland/aztec-benchmark/releases/download/prerelease-c38aee2/defi-wonderland-aztec-benchmark-4.1.0-rc.4-prerelease.c38aee2.tgz"
+    "@defi-wonderland/aztec-benchmark": "4.1.0-rc.4"
   },
   "devDependencies": {
     "@commitlint/cli": "20.3.1",
