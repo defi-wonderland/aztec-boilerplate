@@ -9,11 +9,11 @@ concurrency:
 
 jobs:
   checks:
-    uses: defi-wonderland/aztec-ci-actions/.github/workflows/run-tests.yml@v0
+    uses: defi-wonderland/aztec-ci-actions/.github/workflows/run-tests.yml@feat/next
     secrets: inherit
 
   benchmark:
-    uses: defi-wonderland/aztec-benchmark/.github/workflows/pr-benchmark.yml@4.2.0-nightly.20260323
+    uses: defi-wonderland/aztec-benchmark/.github/workflows/pr-benchmark.yml@feat/next
     permissions:
       pull-requests: write
       issues: write
