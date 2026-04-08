@@ -1,6 +1,6 @@
 {
   "name": "aztec-boilerplate",
-  "version": "4.1.0-rc.4",
+  "version": "4.2.0-aztecnr-rc.2",
   "repository": "https://github.com/defi-wonderland/aztec-boilerplate.git",
   "author": "Wonderland",
   "license": "MIT",
@@ -21,14 +21,14 @@
     "*.{js,ts}": "prettier --write -u"
   },
   "dependencies": {
-    "@aztec/accounts": "4.1.0-rc.4",
-    "@aztec/aztec.js": "4.1.0-rc.4",
-    "@aztec/entrypoints": "4.1.0-rc.4",
-    "@aztec/noir-contracts.js": "4.1.0-rc.4",
-    "@aztec/pxe": "4.1.0-rc.4",
-    "@aztec/stdlib": "4.1.0-rc.4",
-    "@aztec/wallets": "4.1.0-rc.4",
-    "@defi-wonderland/aztec-benchmark": "4.1.0-rc.4"
+    "@aztec/accounts": "4.2.0-aztecnr-rc.2",
+    "@aztec/aztec.js": "4.2.0-aztecnr-rc.2",
+    "@aztec/entrypoints": "4.2.0-aztecnr-rc.2",
+    "@aztec/noir-contracts.js": "4.2.0-aztecnr-rc.2",
+    "@aztec/pxe": "4.2.0-aztecnr-rc.2",
+    "@aztec/stdlib": "4.2.0-aztecnr-rc.2",
+    "@aztec/wallets": "4.2.0-aztecnr-rc.2",
+    "@defi-wonderland/aztec-benchmark": "4.2.0-aztecnr-rc.2"
   },
   "devDependencies": {
     "@commitlint/cli": "20.3.1",
@@ -42,7 +42,7 @@
     "vitest": "4.0.17"
   },
   "config": {
-    "aztecVersion": "4.1.0-rc.4"
+    "aztecVersion": "4.2.0-aztecnr-rc.2"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e",
   "engines": {
