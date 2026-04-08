@@ -1,0 +1,25 @@
+package.json
+  3c4fb356f437e7c7 3,24-31,46
+src/nr/counter_contract/Nargo.toml
+  3c4fb356f437e7c7 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.5",
+  "base_commit_sha": "7c8f47036c9ba7c148c2852d491b9d8b55b3a5f3",
+  "prompts": {
+    "3c4fb356f437e7c7": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4bced6a-79aa-490c-913d-247f830f019a",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "xorsal",
+      "messages": [],
+      "total_additions": 11,
+      "total_deletions": 11,
+      "accepted_lines": 11,
+      "overriden_lines": 0
+    }
+  }
+}
