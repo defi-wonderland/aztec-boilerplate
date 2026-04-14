@@ -1,0 +1,35 @@
+src/nr/counter_contract/Nargo.toml
+  a99242217a30120a 8
+src/ts/counter.test.ts
+  a99242217a30120a 32,38-42,50-54
+benchmarks/counter.benchmark.ts
+  a99242217a30120a 37-40
+src/ts/utils.ts
+  a99242217a30120a 16
+package.json
+  a99242217a30120a 3,24-31,46
+.github/workflows/update-baseline.yml
+  a99242217a30120a 18
+.github/workflows/pr-checks.yml
+  a99242217a30120a 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "32849a11d59908301cd395061a11d6a6b25e8028",
+  "prompts": {
+    "a99242217a30120a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8d442188-1fc9-4bec-b556-2312942890e3",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "xorsal",
+      "messages": [],
+      "total_additions": 29,
+      "total_deletions": 24,
+      "accepted_lines": 29,
+      "overriden_lines": 0
+    }
+  }
+}
