@@ -15,6 +15,7 @@ jobs:
   benchmark:
     uses: defi-wonderland/aztec-benchmark/.github/workflows/pr-benchmark.yml@chore/next
     permissions:
+      contents: read
       pull-requests: write
       issues: write
       actions: read
