@@ -1,0 +1,23 @@
+.github/workflows/pr-checks.yml
+  1801ff4b3a135adc 18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "7c01278e901ac0cccdc9cdbea68293e605993596",
+  "prompts": {
+    "1801ff4b3a135adc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "86fc4984-f920-4953-957d-2720820b4682",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "xorsal",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 0,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
