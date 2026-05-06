@@ -13,7 +13,7 @@ export async function deployCounter(
   owner: AztecAddress,
 ): Promise<CounterContract> {
   const deployerAddress = (await deployer.getAccounts())[0]!.item;
-  const contract = await CounterContract.deploy(deployer, owner).send({
+  const { contract } = await CounterContract.deploy(deployer, owner).send({
     from: deployerAddress,
   });
   return contract;

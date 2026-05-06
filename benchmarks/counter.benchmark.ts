@@ -34,9 +34,10 @@ export default class CounterContractBenchmark extends Benchmark {
 
     const [deployer] = accounts;
 
-    const counterContract = await CounterContract.deploy(wallet, deployer).send(
-      { from: deployer },
-    );
+    const { contract: counterContract } = await CounterContract.deploy(
+      wallet,
+      deployer,
+    ).send({ from: deployer });
 
     return { wallet, deployer, accounts, counterContract };
   }
