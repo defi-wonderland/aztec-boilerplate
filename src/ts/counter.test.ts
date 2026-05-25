@@ -52,6 +52,6 @@ describe("Counter Contract", () => {
           from: alice,
         })
       ).result,
-    ).toBe(1n);
+    ).toBe(999n);
   });
 });
