@@ -1,0 +1,19 @@
+src/ts/counter.test.ts
+  s_53f1a10c89e1bf::t_f4a694da913381 55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "d05889d5f291750cdf89ddde3d5a405fb28440c4",
+  "prompts": {},
+  "sessions": {
+    "s_53f1a10c89e1bf": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8b49c9b0-080b-4f1a-ab16-d4cce0251f30",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "xorsal <zorzal@wonderland.xyz>"
+    }
+  }
+}
