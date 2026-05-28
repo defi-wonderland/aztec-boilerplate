@@ -1,0 +1,45 @@
+Nargo.toml
+  s_3744f1d508e133::t_a976362c59bd01 4
+src/nr/counter_contract/Nargo.toml
+  s_3744f1d508e133::t_bf65d59bd5105c 8-11
+src/nr/composed_counter/src/test/utils.nr
+  s_3744f1d508e133::t_e85d0f9cd1a359 1-13
+src/nr/composed_counter/src/test/compose.nr
+  s_3744f1d508e133::t_fdb060206503f0 1-7,9,12,14-19,21,24,26-31,33,35
+  s_3744f1d508e133::t_422af5ae817803 8,10-11,13,20,22-23,25,32,34
+src/nr/contract_templates/Nargo.toml
+  s_3744f1d508e133::t_b3bcfa1cf94b43 1-8
+src/nr/composed_counter/src/main.nr
+  s_3744f1d508e133::t_bef905508a6acc 1-43
+README.md
+  s_3744f1d508e133::t_e106a99b65e43b 156-157,160-162
+  s_3744f1d508e133::t_0dd2db8c3a4cf7 28-30
+  s_3744f1d508e133::t_0883b8bdf21878 189-220
+  s_3744f1d508e133::t_540d79e4ac8d22 36-38
+src/nr/composed_counter/src/test.nr
+  s_3744f1d508e133::t_3281882e09ca5e 1-2
+src/nr/contract_templates/src/lib.nr
+  s_3744f1d508e133::t_772ebf17d58857 1
+src/nr/contract_templates/src/counter_template.nr
+  s_3744f1d508e133::t_817604ffe7113c 1-52
+src/nr/composed_counter/Nargo.toml
+  s_3744f1d508e133::t_09637ef8ee836d 1-11
+.gitmodules
+  s_3744f1d508e133::t_eeeacc52963ba0 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "1cd0122c62509b7120c162ad28b53f48487beb5d",
+  "prompts": {},
+  "sessions": {
+    "s_3744f1d508e133": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "5713d025-7331-4e7f-bf3f-048b5f02e1f4",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "xorsal <zorzal@wonderland.xyz>"
+    }
+  }
+}
