@@ -25,12 +25,17 @@
 
   <dt>Development tooling</dt>
   <dd>Integrated linting with Prettier and streamlined build commands for rapid development.</dd>
+
+  <dt>Template composition</dt>
+  <dd>A local, editable <a href="https://github.com/defi-wonderland/aztec-nr">aztec-nr</a> fork vendored as a submodule, adding a <code>compose()</code> macro so contracts can pull in reusable templates instead of re-implementing them. See <a href="#composing-templates">Composing templates</a>.</dd>
 </dl>
 
 ## Setup
 
 1. Install Aztec by following the instructions from [their documentation](https://docs.aztec.network/developers/getting_started).
-2. Install the dependencies by running: `yarn install`
+2. Fetch the vendored aztec-nr fork: `git submodule update --init --recursive`
+   (or clone with `git clone --recurse-submodules`).
+3. Install the dependencies by running: `yarn install`
 
 ## Build
 
@@ -148,9 +153,13 @@ export class MyContractBenchmark extends Benchmark {
 ## Project structure
 
 ```
+├── lib/
+│   └── aztec-nr/               # Vendored aztec-nr fork (submodule) — editable framework source
 ├── src/
 │   ├── nr/                     # Noir contracts
-│   │   └── counter_contract/   # Example Counter contract
+│   │   ├── counter_contract/   # Example Counter contract
+│   │   ├── contract_templates/ # Reusable templates (lib) — e.g. the `counter` template
+│   │   └── composed_counter/   # Host contract that composes the `counter` template
 │   ├── ts/                     # TypeScript tests and utilities
 │   └── artifacts/              # Generated TypeScript bindings
 ├── benchmarks/                 # Performance benchmarking
@@ -176,6 +185,38 @@ The `increment()` function is private but enqueues a public `increment_internal(
 - `increment`: Private function that enqueues public state update
 - `increment_internal`: Internal public function for state modification
 - `get_counter`: Returns current counter value (public)
+
+## Composing templates
+
+This boilerplate depends on a [defi-wonderland fork of aztec-nr](https://github.com/defi-wonderland/aztec-nr), vendored as a submodule at `lib/aztec-nr` and wired in via a Noir `path` dependency in each contract's `Nargo.toml`:
+
+```toml
+aztec = { path = "../../../lib/aztec-nr/aztec" }
+```
+
+Vendoring it locally (instead of a remote git tag) means the framework source is in-tree: editable, greppable, and pinned to an exact commit so builds are reproducible. The submodule tracks the `feat/template-composition` branch — advance it deliberately with `git submodule update --remote lib/aztec-nr`.
+
+### What it adds
+
+The fork adds **contract template composition** to the macro layer. Define a reusable template once, then pull its whole surface (externals, internals, events, library methods) into any host contract — no copy-paste:
+
+```noir
+// 1. Define a template (src/nr/contract_templates/src/counter_template.nr)
+#[contract_template("counter")]
+#[aztec]
+pub contract CounterTemplate { /* increment(), current(), _set(), Counted event */ }
+
+// 2. Compose it into a host (src/nr/composed_counter/src/main.nr)
+#[aztec(AztecConfig::new().compose("counter"))]
+pub contract ComposedCounter {
+    // increment(), current(), _set() are injected as if written here;
+    // the host layers on its own owner state and entrypoints.
+}
+```
+
+The host must depend on the template package (that's what registers the `"counter"` id at compile time) and re-declare any storage fields the template uses (Noir can't inject struct fields). Name collisions across templates are hard compile errors unless an override is declared.
+
+Beyond this basic case, the fork supports multi-template compose, transitive (diamond-safe) flattening, `#[template_virtual]` + `override_template(...)`, abstract templates, and cross-crate library methods. See `lib/aztec-nr/composition_tests/` for worked examples and `composition_failure_tests/` for the guardrails.
 
 ## Development workflow
 

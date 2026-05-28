@@ -1,0 +1,4 @@
+[submodule "lib/aztec-nr"]
+	path = lib/aztec-nr
+	url = https://github.com/defi-wonderland/aztec-nr.git
+	branch = feat/template-composition

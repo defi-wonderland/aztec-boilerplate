@@ -1,0 +1,8 @@
+[package]
+name = "contract_templates"
+type = "lib"
+authors = [""]
+compiler_version = ">=1.0.0"
+
+[dependencies]
+aztec = { path = "../../../lib/aztec-nr/aztec" }

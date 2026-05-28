@@ -1,0 +1,11 @@
+[package]
+name = "composed_counter"
+type = "contract"
+compiler_version = ">=1.0.0"
+authors = [""]
+
+[dependencies]
+aztec = { path = "../../../lib/aztec-nr/aztec" }
+# Depending on the template package is what registers the "counter" template id
+# at compile time, so the host's compose("counter") can resolve it.
+contract_templates = { path = "../contract_templates" }

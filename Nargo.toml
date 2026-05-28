@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "src/nr/counter_contract",
+    "src/nr/composed_counter",
 ]
 
 [benchmark]
