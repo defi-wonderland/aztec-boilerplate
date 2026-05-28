@@ -2,6 +2,7 @@
 members = [
     "src/nr/counter_contract",
     "src/nr/composed_counter",
+    "src/nr/pausable_counter",
 ]
 
 [benchmark]

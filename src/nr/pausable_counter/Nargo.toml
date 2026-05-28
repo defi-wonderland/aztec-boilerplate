@@ -1,0 +1,11 @@
+[package]
+name = "pausable_counter"
+type = "contract"
+compiler_version = ">=1.0.0"
+authors = [""]
+
+[dependencies]
+aztec = { path = "../../../lib/aztec-nr/aztec" }
+# Depending on the template package registers the "counter" and "pausable" template ids
+# at compile time so the host's compose(...) calls can resolve them.
+contract_templates = { path = "../contract_templates" }

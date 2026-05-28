@@ -158,8 +158,9 @@ export class MyContractBenchmark extends Benchmark {
 ├── src/
 │   ├── nr/                     # Noir contracts
 │   │   ├── counter_contract/   # Example Counter contract
-│   │   ├── contract_templates/ # Reusable templates (lib) — e.g. the `counter` template
-│   │   └── composed_counter/   # Host contract that composes the `counter` template
+│   │   ├── contract_templates/ # Reusable templates (lib): `counter` + `pausable`
+│   │   ├── composed_counter/   # Host that composes the `counter` template
+│   │   └── pausable_counter/   # Host that composes `counter` + `pausable` and overrides increment
 │   ├── ts/                     # TypeScript tests and utilities
 │   └── artifacts/              # Generated TypeScript bindings
 ├── benchmarks/                 # Performance benchmarking
@@ -216,7 +217,28 @@ pub contract ComposedCounter {
 
 The host must depend on the template package (that's what registers the `"counter"` id at compile time) and re-declare any storage fields the template uses (Noir can't inject struct fields). Name collisions across templates are hard compile errors unless an override is declared.
 
-Beyond this basic case, the fork supports multi-template compose, transitive (diamond-safe) flattening, `#[template_virtual]` + `override_template(...)`, abstract templates, and cross-crate library methods. See `lib/aztec-nr/composition_tests/` for worked examples and `composition_failure_tests/` for the guardrails.
+### Composing several templates, with overrides
+
+`pausable_counter` shows the next step up: it composes **two** templates and overrides one of their functions. `PausableCounter` pulls in both `counter` and `pausable`, then replaces the counter's `increment` with a version that refuses to run while paused:
+
+```noir
+#[aztec(AztecConfig::new()
+    .compose("counter")
+    .compose("pausable")
+    .override_template("counter", "increment"))]
+pub contract PausableCounter {
+    // count + paused storage re-declared; owner is the host's own field
+    #[external("public")]
+    fn increment() {
+        assert(!self.storage.paused.read(), "PausableCounter: paused");
+        self.internal._increment(); // reuse the composed internal that writes + emits
+    }
+}
+```
+
+Overriding requires the template function to be marked `#[template_virtual]` (see `counter_template`'s `increment`). The override re-implements only the guard and delegates the real work back to the composed `_increment` internal.
+
+Beyond this, the fork supports transitive (diamond-safe) flattening, abstract templates, internal overrides via `override_internal_template(...)`, and cross-crate library methods. See `lib/aztec-nr/composition_tests/` for worked examples and `composition_failure_tests/` for the guardrails.
 
 ## Development workflow
 
