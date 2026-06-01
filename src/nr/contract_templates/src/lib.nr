@@ -1,2 +1,2 @@
-pub mod counter_template;
 pub mod pausable_template;
+pub mod ownable_template;

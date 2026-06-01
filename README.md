@@ -157,10 +157,8 @@ export class MyContractBenchmark extends Benchmark {
 │   └── aztec-nr/               # Vendored aztec-nr fork (submodule) — editable framework source
 ├── src/
 │   ├── nr/                     # Noir contracts
-│   │   ├── counter_contract/   # Example Counter contract
-│   │   ├── contract_templates/ # Reusable templates (lib): `counter` + `pausable`
-│   │   ├── composed_counter/   # Host that composes the `counter` template
-│   │   └── pausable_counter/   # Host that composes `counter` + `pausable` and overrides increment
+│   │   ├── counter_contract/   # Counter (the host) that composes `ownable` + `pausable`
+│   │   └── contract_templates/ # Reusable templates (lib): `ownable` + `pausable`
 │   ├── ts/                     # TypeScript tests and utilities
 │   └── artifacts/              # Generated TypeScript bindings
 ├── benchmarks/                 # Performance benchmarking
@@ -171,21 +169,19 @@ export class MyContractBenchmark extends Benchmark {
 
 ## Contract architecture
 
-The Counter contract demonstrates key Aztec patterns:
-
-### Private-to-Public execution pattern
-The `increment()` function is private but enqueues a public `increment_internal()` call. This pattern maintains privacy while updating public state.
+The `Counter` host owns the counter logic and pulls in cross-cutting concerns (ownership, pausing) from reusable templates via `compose(...)`.
 
 ### Storage
-- **Owner**: Immutable address set at deployment
-- **Counter**: Mutable public value
+- **owner** (re-declared from `ownable`): `PublicImmutable<AztecAddress>`, set at deployment
+- **paused** (re-declared from `pausable`): `PublicMutable<bool>`, defaults to false
+- **count** (host's own): `PublicMutable<u128>`
 
 ### Functions
-- `constructor`: Initializes contract with owner
-- `get_owner`: Returns owner address (public)
-- `increment`: Private function that enqueues public state update
-- `increment_internal`: Internal public function for state modification
-- `get_counter`: Returns current counter value (public)
+- `constructor(owner)`: initializes the owner
+- `increment()`: refuses while paused, refuses for non-owner callers, then bumps `count`
+- `get_counter()`: returns the current count
+- `get_owner()`: composed from `ownable`
+- `pause()` / `unpause()` / `is_paused()`: composed from `pausable`
 
 ## Composing templates
 
@@ -199,46 +195,57 @@ Vendoring it locally (instead of a remote git tag) means the framework source is
 
 ### What it adds
 
-The fork adds **contract template composition** to the macro layer. Define a reusable template once, then pull its whole surface (externals, internals, events, library methods) into any host contract — no copy-paste:
+The fork adds **contract template composition** to the macro layer. Reusable cross-cutting concerns (ownership, pausing, reentrancy guards, token surfaces) get written once as templates, then any host contract pulls them in:
 
 ```noir
-// 1. Define a template (src/nr/contract_templates/src/counter_template.nr)
-#[contract_template("counter")]
+// Define reusable templates (src/nr/contract_templates/src/...)
+#[contract_template("ownable")]
 #[aztec]
-pub contract CounterTemplate { /* increment(), current(), _set(), Counted event */ }
+pub contract OwnableTemplate {
+    // owner storage convention + get_owner() + an `_assert_is_owner` library-method guard
+}
 
-// 2. Compose it into a host (src/nr/composed_counter/src/main.nr)
-#[aztec(AztecConfig::new().compose("counter"))]
-pub contract ComposedCounter {
-    // increment(), current(), _set() are injected as if written here;
-    // the host layers on its own owner state and entrypoints.
+#[contract_template("pausable")]
+#[aztec]
+pub contract PausableTemplate {
+    // paused storage + pause()/unpause()/is_paused() + PauseToggled event
 }
 ```
 
-The host must depend on the template package (that's what registers the `"counter"` id at compile time) and re-declare any storage fields the template uses (Noir can't inject struct fields). Name collisions across templates are hard compile errors unless an override is declared.
-
-### Composing several templates, with overrides
-
-`pausable_counter` shows the next step up: it composes **two** templates and overrides one of their functions. `PausableCounter` pulls in both `counter` and `pausable`, then replaces the counter's `increment` with a version that refuses to run while paused:
+The Counter host owns the domain logic (count + increment) and pulls in both mixins:
 
 ```noir
-#[aztec(AztecConfig::new()
-    .compose("counter")
-    .compose("pausable")
-    .override_template("counter", "increment"))]
-pub contract PausableCounter {
-    // count + paused storage re-declared; owner is the host's own field
+#[aztec(AztecConfig::new().compose("ownable").compose("pausable"))]
+pub contract Counter {
+    #[storage]
+    struct Storage<Context> {
+        owner: PublicImmutable<AztecAddress, Context>,   // from ownable
+        paused: PublicMutable<bool, Context>,            // from pausable
+        count: PublicMutable<u128, Context>,             // host's own
+    }
+
     #[external("public")]
     fn increment() {
-        assert(!self.storage.paused.read(), "PausableCounter: paused");
-        self.internal._increment(); // reuse the composed internal that writes + emits
+        assert(!self.storage.paused.read(), "Counter: paused");
+        _assert_is_owner(
+            self.context.maybe_msg_sender().unwrap(),
+            self.storage.owner.read(),
+        );
+        let new_val = self.storage.count.read() + 1;
+        self.storage.count.write(new_val);
     }
 }
 ```
 
-Overriding requires the template function to be marked `#[template_virtual]` (see `counter_template`'s `increment`). The override re-implements only the guard and delegates the real work back to the composed `_increment` internal.
+A few things to keep in mind:
 
-Beyond this, the fork supports transitive (diamond-safe) flattening, abstract templates, internal overrides via `override_internal_template(...)`, and cross-crate library methods. See `lib/aztec-nr/composition_tests/` for worked examples and `composition_failure_tests/` for the guardrails.
+- **The host depends on the template package** (`contract_templates = { path = "..." }`). That's what registers the template ids at compile time so `compose(...)` can resolve them.
+- **Storage fields from a composed template must be re-declared in the host's `#[storage]` struct.** Noir cannot inject struct fields, so the host holds the canonical layout and template functions read/write against it.
+- **Library methods are inline, internals are dispatched.** A `#[contract_library_method]` (like `_assert_is_owner`) is migrated to the host as a free function and runs inside the host's call frame — so it can see the real `msg_sender` via the passed-in context value. An `#[internal("public")]` would dispatch as a separate public call where the caller becomes the contract itself, which is the wrong frame for an ownership check.
+
+Beyond this basic case the fork supports multi-template compose, transitive (diamond-safe) flattening, `#[template_virtual]` + `override_template(...)`, abstract templates, internal overrides, and cross-crate library methods. See `lib/aztec-nr/composition_tests/` for worked examples and `composition_failure_tests/` for the guardrails.
+
+> **Noir comment gotcha:** the toolchain on this branch (nargo beta.19) rejects non-ASCII characters in Noir comments. Keep `.nr` source ASCII-only — no em-dashes, smart quotes, etc.
 
 ## Development workflow
 

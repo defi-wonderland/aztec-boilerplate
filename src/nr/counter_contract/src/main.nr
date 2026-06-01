@@ -1,57 +1,56 @@
-use aztec::macros::aztec;
+use aztec::macros::{aztec, AztecConfig};
 pub mod test;
 
-#[aztec]
+/// Counter contract.
+///
+/// The host owns the counter logic (count storage + increment + getter). Cross-cutting
+/// concerns are pulled in from reusable templates:
+///
+/// - `compose("ownable")` injects `get_owner()` and the `_only_owner` library-method guard.
+/// - `compose("pausable")` injects `pause()`, `unpause()`, `is_paused()` and `PauseToggled`.
+///
+/// `increment` is guarded inline by both: it refuses while paused and refuses for any
+/// caller other than the owner.
+#[aztec(AztecConfig::new().compose("ownable").compose("pausable"))]
 pub contract Counter {
-    // aztec library imports
     use aztec::{
-        macros::{functions::{external, initializer, only_self, view}, storage::storage},
+        macros::{functions::{external, initializer, view}, storage::storage},
         protocol::address::AztecAddress,
         state_vars::{PublicImmutable, PublicMutable},
     };
 
-    // @param owner The address of the owner
-    // @param counter A numerical value
+    // Storage fields from both composed templates must be re-declared here (Noir
+    // cannot inject struct fields), plus the host's own counter field.
     #[storage]
     struct Storage<Context> {
-        owner: PublicImmutable<AztecAddress, Context>,
-        counter: PublicMutable<u128, Context>,
+        owner: PublicImmutable<AztecAddress, Context>,  // from ownable
+        paused: PublicMutable<bool, Context>,           // from pausable
+        count: PublicMutable<u128, Context>,            // host's own
     }
 
-    /// @dev Initialize the contract
-    /// @param owner The address of the owner
+    /// Initialize the contract with an owner. `paused` defaults to false.
     #[external("public")]
     #[initializer]
     fn constructor(owner: AztecAddress) {
         self.storage.owner.initialize(owner);
     }
 
-    /// @dev Retrieves the owner of the contract
-    /// @return The owner of the contract
+    /// Increment the counter. Owner-only and refused while paused.
     #[external("public")]
-    fn get_owner() -> AztecAddress {
-        self.storage.owner.read()
-    }
-
-    /// @dev Increments the counter
-    #[external("private")]
     fn increment() {
-        self.enqueue_self.increment_internal();
+        assert(!self.storage.paused.read(), "Counter: paused");
+        _assert_is_owner(
+            self.context.maybe_msg_sender().unwrap(),
+            self.storage.owner.read(),
+        );
+        let new_val = self.storage.count.read() + 1;
+        self.storage.count.write(new_val);
     }
 
-    /// @dev Retrieves the counter value
-    /// @return The current counter value
-    #[external("public")]
+    /// Read the current counter value.
     #[view]
-    fn get_counter() -> u128 {
-        self.storage.counter.read()
-    }
-
-    /// @dev Increments the counter
     #[external("public")]
-    #[only_self]
-    fn increment_internal() {
-        let current_value = self.storage.counter.read();
-        self.storage.counter.write(current_value + 1);
+    fn get_counter() -> u128 {
+        self.storage.count.read()
     }
 }

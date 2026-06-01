@@ -9,3 +9,6 @@ authors = [""]
 # Editable in-tree and commit-pinned via the submodule; swap for the upstream
 # git tag if you don't need the template-composition feature.
 aztec = { path = "../../../lib/aztec-nr/aztec" }
+# Depending on the template package registers the "ownable" and "pausable" template
+# ids at compile time so the host's compose(...) calls can resolve them.
+contract_templates = { path = "../contract_templates" }
