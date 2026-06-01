@@ -14,7 +14,7 @@ describe("Counter Contract", () => {
   beforeAll(async () => {
     const aztecNode = await createAztecNodeClient("http://localhost:8080", {});
     wallet = await EmbeddedWallet.create(aztecNode, {
-      pxeConfig: {
+      pxe: {
         dataDirectory: "pxe-test",
         proverEnabled: false,
       },
