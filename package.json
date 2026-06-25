@@ -28,7 +28,7 @@
     "@aztec/pxe": "5.0.0-rc.1",
     "@aztec/stdlib": "5.0.0-rc.1",
     "@aztec/wallets": "5.0.0-rc.1",
-    "@defi-wonderland/aztec-benchmark": "https://github.com/defi-wonderland/aztec-benchmark/releases/download/prerelease-98d719b/defi-wonderland-aztec-benchmark-5.0.0-rc.1-prerelease.98d719b.tgz",
+    "@defi-wonderland/aztec-benchmark": "5.0.0-rc.1",
     "@types/node": "25.0.10"
   },
   "devDependencies": {
